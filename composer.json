@@ -1,0 +1,25 @@
+{
+    "name": "tractorcow/silverstripe-imagegallery",
+    "description": "Simple image gallery module for Silverstripe",
+	"type": "silverstripe-module",
+	"keywords": ["silverstripe", "image", "gallery"],
+    "authors": [
+        {
+            "name": "Uncle Cheese",
+            "email": "unclecheese@leftandmain.com"
+        },
+        {
+            "name": "Damian Mooyman",
+            "email": "damian.mooyman@gmail.com"
+        }
+    ],
+    "require": {
+		"silverstripe/framework": "2.4.*-dev",
+    },
+	"support": {
+		"issues": "https://github.com/tractorcow/ImageGallery/issues"
+	},
+	"extra": {
+		"installer-name": "imagegallery"
+	}
+}
