@@ -20,6 +20,6 @@
 		"issues": "https://github.com/tractorcow/ImageGallery/issues"
 	},
 	"extra": {
-		"installer-name": "imagegallery"
+		"installer-name": "image_gallery"
 	}
 }
