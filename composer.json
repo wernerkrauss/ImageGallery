@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-		"silverstripe/framework": ">=3.1.*"
+		"silverstripe/framework": ">=3.1"
     },
 	"support": {
 		"issues": "https://github.com/tractorcow/ImageGallery/issues"
