@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This task searches the folders belonging to image galleries and adds any missing images.
  * This means you can upload images using sftp or rsync etc, then automatically add them in
@@ -12,39 +13,44 @@ class UpdateImageGalleryTask extends BuildTask {
 	
 	public function run($request) {
 		
+		// Migrate old ImageGalleryImage class to use Image object
+		DB::query('UPDATE "File" SET "File"."ClassName" = \'Image\' WHERE "File"."ClassName" = \'ImageGalleryImage\'');
+		
+		// check that galleries exist
 		$galleries = DataObject::get('ImageGalleryPage');
+		if (!$galleries || $galleries->count() === 0) {
+			user_error('No image gallery pages found', E_USER_ERROR);
+			return;
+		}
+		
+		// check each gallery
 		$count = 0;
-		if ($galleries && $galleries->count()) {
-			Debug::message("Importing, please wait....");
-			foreach ($galleries as $g) {
-				if ($g->Albums()) {
-					foreach ($g->Albums() as $a) {
-						$folder = $a->Folder();
-						$existing = $a->GalleryItems()->column('ImageID');
-						foreach($folder->Children() as $image) {
-							if (!in_array($image->ID, $existing)) {
-								
-								//Make the image a Image Gallery Image
-								$image = $image->newClassInstance('ImageGalleryImage');
-								$image->write();
-								
-								//Add to the album
-								$item = new ImageGalleryItem();
-								$item->ImageGalleryPageID = $g->ID;
-								$item->AlbumID = $a->ID;
-								$item->ImageID = $image->ID;
-								$item->write();
-								$count++;
-							}
-						}
-					}
-				} else {
-					Debug::message("Warning: no album found in gallery '{$g->Title}'");
+		Debug::message("Importing, please wait....");
+		foreach ($galleries as $gallery) {
+			$albums = $gallery->Albums();
+			if(!$albums || $albums->count() === 0) {
+				Debug::message("Warning: no album found in gallery '{$gallery->Title}'");
+				continue;
+			}
+			
+			// Check each album in each gallery
+			foreach ($albums as $album) {
+				$album->write(); // Ensures folder, URLSegment, etc are all prepared
+				$folder = $album->Folder();
+				$existing = $album->GalleryItems()->column('ImageID');
+				foreach($folder->Children() as $image) {
+					if (in_array($image->ID, $existing)) continue;
+
+					//Add to the album
+					$item = ImageGalleryItem::create();
+					$item->ImageGalleryPageID = $gallery->ID;
+					$item->AlbumID = $album->ID;
+					$item->ImageID = $image->ID;
+					$item->write();
+					$count++;
 				}
 			}
-			Debug::message("Imported $count images into galleries");
-		} else {
-			user_error('No image gallery pages found', E_USER_ERROR);
 		}
+		Debug::message("Imported $count images into galleries");
 	}
 }

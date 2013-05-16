@@ -1,8 +1,12 @@
 <?php
-class ImageGalleryPage extends Page
-{
-	static $db = array (
-		'SortBy' => "Enum( array( 'Title', 'UploadDateASC', 'UploadDateDESC','SortASC' ), 'SortASC' )",
+
+class ImageGalleryPage extends Page {
+	
+	protected $currentAlbum = null;
+	
+	private static $icon = 'image_gallery/images/image-gallery-icon.png';
+
+	private static $db = array(
 		'GalleryUI' => "Varchar(50)",
 		'CoverImageWidth' => 'Int',
 		'CoverImageHeight' => 'Int',
@@ -14,12 +18,12 @@ class ImageGalleryPage extends Page
 		'MediaPerPage' => 'Int',
 		'UploadLimit' => 'Int'
 	);
-	
-	static $has_one = array (
+
+	private static $has_one = array(
 		'RootFolder' => 'Folder'
 	);
-	
-	static $defaults = array (
+
+	private static $defaults = array(
 		'CoverImageWidth' => '128',
 		'CoverImageHeight' => '128',
 		'ThumbnailSize' => '128',
@@ -31,377 +35,310 @@ class ImageGalleryPage extends Page
 		'UploadLimit' => '20',
 		'GalleryUI' => 'Lightbox'
 	);
-	
-	static $has_many = array (
+
+	private static $has_many = array(
 		'Albums' => 'ImageGalleryAlbum',
 		'GalleryItems' => 'ImageGalleryItem'
 	);
-		
-	protected $itemClass = "ImageGalleryItem";
-	protected $albumClass = "ImageGalleryAlbum";
-	public $UI;
-  
 
-	public function getItemClass()
-	{
-		return $this->itemClass;
+	/**
+	 * @config
+	 * @var string
+	 */
+	private static $item_class = "ImageGalleryItem";
+
+	/**
+	 * @config
+	 * @var string
+	 */
+	private static $album_class = "ImageGalleryAlbum";
+
+	public $UI;
+
+	public function getItemClass() {
+		return self::config()->item_class;
 	}
-	
-	public function getAlbumClass()
-	{
-		return $this->albumClass;
+
+	public function getAlbumClass() {
+		return self::config()->album_class;
 	}
-	
-	function onBeforeWrite() { 
-    parent::onBeforeWrite(); 
-    if( $this->ID ) 
-    	$this->RootFolder()->Title = $this->Title; 
-   }	
-	
-	function onAfterWrite() 
-	{
-		if( $this->ID ) $this->checkFolder();
-		parent::onAfterWrite();
+
+	function onBeforeWrite() {
+		parent::onBeforeWrite();
+		$this->checkFolder();
 	}
-	function onBeforeDelete()
-	{
+
+	function onBeforeDelete() {
 		// check if Page still exists in live mode
-		$livePage = Versioned::get_one_by_stage(get_class(), "Live", get_class()."_Live.ID = ".$this->ID);
+		$className = $this->ClassName;
+		$livePage = Versioned::get_one_by_stage($className, "Live", "\"{$className}_Live\".\"ID\" = {$this->ID}");
 		// check if Page still exists in stage mode
-		$stagePage = Versioned::get_one_by_stage(get_class(), "Stage", get_class().".ID = ".$this->ID);
-		
+		$stagePage = Versioned::get_one_by_stage($className, "Stage", "\"{$className}\".\"ID\" = {$this->ID}");
+
 		// if Page only exists in Live OR Stage mode -> Page will be deleted completely
-		if(!($livePage && $stagePage)) {
+		if (!($livePage && $stagePage)) {
 			// delete existing Albums 
-			if($this->Albums()) {
-				foreach($this->Albums() as $album) {
-					$album->delete();
-				}
-			}
+			$this->Albums()->removeAll();
 			$this->RootFolder()->delete(); // delete root folder of ImageGalleryPage
 		}
-		
+
 		parent::onBeforeDelete();
 	}
+
 	function checkFolder() {
-		$clean_name = SiteTree::generateURLSegment($this->Title);
-		if( ! $this->RootFolderID ) {
-			$galleries = Folder::findOrMake('image-gallery');
-			$galleries->Title = 'Image Gallery';
-			$galleries->write();
-			$folder = Folder::findOrMake('image-gallery/' . $clean_name);
-			$folder->Title = $this->Title;
-			$folder->setName($clean_name);
-			$folder->write();
-			
+		// Ensure root folder exists, but avoid saving folders like "new-image-gallery-page"
+		if ($this->exists()
+			&& !(($folder = $this->RootFolder()) && $folder->exists())
+			&& $this->URLSegment
+		) {
+			$folder = Folder::findOrMake("image-gallery/{$this->URLSegment}");
 			$this->RootFolderID = $folder->ID;
-			$this->write();
-			
-			$this->requireDefaultAlbum();
-			FormResponse::add( "\$( 'Form_EditForm' ).getPageFromServer( $this->ID );" );
 		}
-		else {
-			$this->RootFolder()->setName($clean_name);
-			$this->RootFolder()->write();
-		}	
 	}
+
+	public function getCMSFields() {
 		
-	private function requireDefaultAlbum()
-	{
-		$class = $this->albumClass;
-		$album = new $class();
-		$album->AlbumName = "Default Album";
-		$album->ImageGalleryPageID = $this->ID;
-		$album->ParentID = $this->RootFolderID;
-		$folder = Folder::findOrMake('image-gallery/'.$this->RootFolder()->Name.'/'.$album->AlbumName);
-		$folder->write();
-		$album->FolderID = $folder->ID;
-		$album->write();
-	}
-	
-	public function getCMSFields($cms) {
+		// Get list of UI options
+		$popupMap = array();
+		foreach(ClassInfo::subclassesFor("ImageGalleryUI") as $ui) {
+			if ($ui == "ImageGalleryUI") continue;
+			
+			$uiLabel = $ui::$label;
+			$demoURL = $ui::$link_to_demo;
+			$demoLink = !empty($demoURL)
+					? sprintf('<a href="%s" target="_blank">%s</a>', $demoURL, _t('ImageGalleryPage.VIEWDEMO', 'view demo'))
+					: "";
+			$popupMap[$ui] = "$uiLabel $demoLink";
+		}
+
+		$fields = parent::getCMSFields();
 		
-		$configuration = _t('ImageGalleryPage.CONFIGURATION','Configuration');
-		$albums = _t('ImageGalleryPage.ALBUMS','Albums');
-		$photos = _t('ImageGalleryPage.PHOTOS','Photos');
-		
-		$f = parent::getCMSFields($cms);
-		$f->addFieldToTab("Root.Content.$configuration", new HeaderField($title = _t('ImageGalleryPage.ALBUMCOVERIMAGES','Album cover images'), $headingLevel = "6"));
-		$f->addFieldToTab("Root.Content.$configuration", new FieldGroup(
-				new NumericField('CoverImageWidth',_t('ImageGalleryPage.WIDTH','Width')),
-				new NumericField('CoverImageHeight',_t('ImageGalleryPage.HEIGHT','Height'))
-			)
-		);
-		$f->addFieldToTab("Root.Content.$configuration", new NumericField('ThumbnailSize',_t('ImageGalleryPage.THUMBNAILHEIGHT','Thumbnail height (pixels)')));
-		$f->addFieldToTab("Root.Content.$configuration", new CheckboxField('Square',_t('ImageGalleryPage.CROPTOSQUARE','Crop thumbnails to square')));
-		$f->addFieldToTab("Root.Content.$configuration", new NumericField('MediumSize',_t('ImageGalleryPage.MEDIUMSIZE','Medium size (pixels)')));
-		$f->addFieldToTab("Root.Content.$configuration", new NumericField('NormalSize',_t('ImageGalleryPage.NORMALSIZE','Normal width (pixels)')));
-		$f->addFieldToTab("Root.Content.$configuration", new NumericField('NormalHeight',_t('ImageGalleryPage.NORMALHEIGHT','Normal height (pixels)')));
-		$f->addFieldToTab("Root.Content.$configuration", new NumericField('MediaPerPage',_t('ImageGalleryPage.IMAGESPERPAGE','Number of images per page')));
-		$popup_map = array();
-		if($ui_list = ClassInfo::subclassesFor("ImageGalleryUI")) {
-			foreach($ui_list as $ui) {
-				if($ui != "ImageGalleryUI") {
-					$ui_label = eval("return $ui::\$label;");
-					$demo_url = eval("return $ui::\$link_to_demo;");
-					$demo_link = !empty($demo_url) ? sprintf('<a href="%s" target="_blank">%s</a>',$demo_url, _t('ImageGalleryPage.VIEWDEMO','view demo')) : "";
-					$popup_map[$ui] = $ui_label . " " . $demo_link;
-				}
+		// Build configuration fields
+		$fields->addFieldToTab('Root', $configTab = new Tab('Configuration'));
+		$configTab->setTitle(_t('ImageGalleryPage.CONFIGURATION', 'Configuration'));
+		$fields->addFieldsToTab("Root.Configuration", array(	
+			$coverImages = new FieldGroup(
+				new NumericField('CoverImageWidth', _t('ImageGalleryPage.WIDTH', 'Width')), 
+				new NumericField('CoverImageHeight', _t('ImageGalleryPage.HEIGHT', 'Height'))
+			),
+			new NumericField('ThumbnailSize', _t('ImageGalleryPage.THUMBNAILHEIGHT', 'Thumbnail height (pixels)')),
+			new CheckboxField('Square', _t('ImageGalleryPage.CROPTOSQUARE', 'Crop thumbnails to square')),
+			new NumericField('MediumSize', _t('ImageGalleryPage.MEDIUMSIZE', 'Medium size (pixels)')),
+			new NumericField('NormalSize', _t('ImageGalleryPage.NORMALSIZE', 'Normal width (pixels)')),
+			new NumericField('NormalHeight', _t('ImageGalleryPage.NORMALHEIGHT', 'Normal height (pixels)')),
+			new NumericField('MediaPerPage', _t('ImageGalleryPage.IMAGESPERPAGE', 'Number of images per page')),
+			new OptionsetField('GalleryUI', _t('ImageGalleryPage.POPUPSTYLE', 'Popup style'), $popupMap),
+			new NumericField('UploadLimit', _t('ImageGalleryPage.MAXFILES', 'Max files allowed in upload queue'))
+		));
+		$coverImages->setTitle(_t('ImageGalleryPage.ALBUMCOVERIMAGES', 'Album cover images'));
+
+		// Build albums tab
+		$fields->addFieldToTab('Root', $albumTab = new Tab('Albums'));
+		$albumTab->setTitle(_t('ImageGalleryPage.ALBUMS', 'Albums'));
+		if ($rootFolder = $this->RootFolder()) {
+			$albumConfig = GridFieldConfig_RecordEditor::create();
+			// Enable bulk image loading if necessary module is installed
+			// @see composer.json/suggests
+			if(class_exists('GridFieldBulkManager')) {
+				$albumConfig->addComponent(new GridFieldBulkManager());
 			}
-		}		
-		$f->addFieldToTab("Root.Content.$configuration",new OptionsetField('GalleryUI',_t('ImageGalleryPage.POPUPSTYLE','Popup style'), $popup_map));
-		$f->addFieldToTab("Root.Content.$configuration", new NumericField('UploadLimit',_t('ImageGalleryPage.MAXFILES','Max files allowed in upload queue')));				
-		
-		if($this->RootFolderID) {
-
-			$manager = new DataObjectManager(
-				$this,
-				'Albums',
-				$this->albumClass,
-				array('AlbumName' => _t('ImageGalleryAlbum.ALBUMNAME','Album Name'), 'Description' => _t('ImageGalleryAlbum.DESCRIPTION','Description')),
-				'getCMSFields_forPopup',
-				"ImageGalleryPageID = {$this->ID}"
+			// Enable album sorting if necessary module is installed
+			// @see composer.json/suggests
+			if(class_exists('GridFieldSortableRows')) {
+				$albumConfig->addComponent(new GridFieldSortableRows('SortOrder'));
+			}
+			$albumField = new GridField('Albums', 'Albums', $this->Albums(), $albumConfig);
+			$fields->addFieldToTab("Root.Albums", $albumField);
+		} else {
+			$fields->addFieldToTab(
+				"Root.Albums",
+				new HeaderField(
+					_t("ImageGalleryPage.ALBUMSNOTSAVED", "You may add albums to your gallery once you have saved the page for the first time."),
+					$headingLevel = "3"
+				)
 			);
-			
-			$manager->setAddTitle(_t('ImageGalleryPage.ANALBUM','an Album'));
-			$manager->setSingleTitle(_t('ImageGalleryPage.ALBUM','Album'));
-			$manager->setParentClass('ImageGalleryPage');
-
-			$f->addFieldToTab("Root.Content.$albums", $manager);
 		}
-		else 
-			$f->addFieldToTab("Root.Content.$albums", new HeaderField($title = _t("ImageGalleryPage.ALBUMSNOTSAVED","You may add albums to your gallery once you have saved the page for the first time."), $headingLevel = "3"));
 		
-		if($this->RootFolderID && $this->Albums()->Count() > 0) {
-			$manager = new ImageGalleryManager(
-				$this,
-				'GalleryItems',
-				$this->itemClass,
-				'Image',
-				array('Caption' => _t('ImageGalleryItem.CAPTION','Caption')),
-				'getCMSFields_forPopup'
-			);
-			
-			$manager->setPluralTitle(_t('ImageGalleryPage.IMAGES','Images'));
-			$manager->setParentClass("ImageGalleryPage");
-			if($this->UploadLimit)
-				$manager->setUploadLimit($this->UploadLimit);
-				
-			$f->addFieldToTab("Root.Content.$photos", $manager);
-		}
-		elseif(!$this->RootFolderID)
-			$f->addFieldToTab("Root.Content.$photos", new HeaderField($title = _t("ImageGalleryPage.PHOTOSNOTSAVED","You may add photos to your gallery once you have saved the page for the first time."), $headingLevel = "3"));
-		elseif($this->Albums()->Count() == 0)
-			$f->addFieldToTab("Root.Content.$photos", new HeaderField($title = _t("ImageGalleryPage.NOALBUMS","You have no albums. Click on the Albums tab to create at least one album before adding photos."), $headingLevel = "3"));
-		return $f;
+		return $fields;
 	}
-	
-	public function CurrentAlbum()
-	{
-		if($this->current_album)
-			return $this->current_album;
-		$c = Controller::curr();
-		if(isset($c->urlParams['ID'])) {
-			$url_segment = Convert::raw2sql($c->urlParams['ID']);
-			$field = is_numeric($url_segment) ? "ID" : "Name";
-			$albums = DataObject::get($this->albumClass,"ImageGalleryPageID = {$this->ID} AND File.{$field} = '$url_segment'", "", "LEFT JOIN File ON File.ID = FolderID");
-			return $albums ? $albums->First() : false; 
+
+	public function CurrentAlbum() {
+		if ($this->currentAlbum) return $this->currentAlbum;
+		$params = Controller::curr()->getURLParams();
+		if (!empty($params['ID'])) {
+			$urlSegment = Convert::raw2sql($params['ID']);
+			$albums = DataObject::get($this->AlbumClass)->where("\"{$this->AlbumClass}\".\"URLSegment\" = '$urlSegment'");
+			return $albums ? $albums->First() : false;
 		}
 		return false;
 	}
-	
-	public function AlbumTitle()
-	{
+
+	public function AlbumTitle() {
 		return $this->CurrentAlbum()->AlbumName;
 	}
 
-	public function AlbumDescription()
-	{
+	public function AlbumDescription() {
 		return $this->CurrentAlbum()->Description;
 	}
 
-	public function SingleAlbumView()
-	{
-		if($this->Albums()->Count() == 1) {
-			$this->current_album = $this->Albums()->First();
+	public function SingleAlbumView() {
+		if ($this->Albums()->Count() == 1) {
+			$this->currentAlbum = $this->Albums()->First();
 			return true;
 		}
 		return false;
 	}
-	
-	private static function get_default_ui()
-	{
-    $classes = ClassInfo::subclassesFor("ImageGalleryUI");
-    foreach($classes as $class) {
-      if($class != "ImageGalleryUI") return $class; 
-    }
-    return false;
+
+	private static function get_default_ui() {
+		$classes = ClassInfo::subclassesFor("ImageGalleryUI");
+		foreach ($classes as $class) {
+			if ($class != "ImageGalleryUI") return $class;
+		}
+		return false;
 	}
-	
-	public function GalleryUI()
-	{
-	   return $this->GalleryUI ? $this->GalleryUI : self::get_default_ui();
+
+	public function GalleryUI() {
+		return $this->GalleryUI
+				? $this->GalleryUI
+				: self::get_default_ui();
 	}
-	
-	public function includeUI()
-	{
-		if($this->GalleryUI() && ClassInfo::exists($this->GalleryUI())) {
+
+	public function includeUI() {
+		if (($ui = $this->GalleryUI()) && ClassInfo::exists($ui)) {
 			Requirements::javascript("image_gallery/javascript/imagegallery_init.js");
-			$ui = $this->GalleryUI();
-			$this->UI = new $ui();
+			$this->UI = Object::create($ui);
 			$this->UI->setImageGalleryPage($this);
 			$this->UI->initialize();
 		}
 	}
-	
-	protected function Items($limit = null) {
-		if($limit === null && $this->MediaPerPage ) {
-			if( !isset($_REQUEST['start']) || ! is_numeric( $_REQUEST['start'] ) )
-				$_REQUEST['start'] = 0;
-			
-			$limit = $_REQUEST['start'] . "," . $this->MediaPerPage;
-		}
-		
-		$filter = ($current_album = $this->CurrentAlbum()) ? "AlbumID = {$current_album->ID} AND" : "";
-		$files = DataObject::get(
-			$this->getItemClass(), 
-			"$filter ImageGalleryPageID = {$this->ID}",
-			null,
-			"",
-			$limit
-		);
-		return $files;	
-	}
 
+	protected function Items($limit = null) {
+		if ($limit === null && $this->MediaPerPage) {
+			if(isset($_REQUEST['start']) && is_numeric($_REQUEST['start'])) {
+				$start = $_REQUEST['start'];
+			} else {
+				$start = 0;
+			}
+
+			$limit = "{$start},{$this->MediaPerPage}";
+		}
+
+		$filters = array("\"ImageGalleryItem\".\"ImageGalleryPageID\" = '".Convert::raw2sql($this->ID)."'");
+		if($album = $this->CurrentAlbum()) {
+			$filters[] = "\"ImageGalleryItem\".\"AlbumID\" = '".Convert::raw2sql($album->ID)."'";
+		}
+		return DataObject::get($this->ItemClass, implode(' AND ', $filters), '"SortOrder" ASC', null, $limit);
+	}
 
 	public function GalleryItems($limit = null, $items = null) {
+
+		// Check items and UI are ready
+		if (empty($items)) $items = $this->Items($limit);
+		$this->includeUI();
 		
-		if($items === null) 
-			$items = $this->Items($limit);
-	  $this->includeUI();
-		if( $items ) {
-			foreach( $items as $item ) {
-				if($this->Square)
-					$thumbImg = $item->Image()->CroppedImage($this->ThumbnailSize,$this->ThumbnailSize);
-				else
-					$thumbImg = $item->Image()->SetHeight($this->ThumbnailSize);					
-				if($thumbImg) {
-					$item->ThumbnailURL = $thumbImg->URL;
-					$item->ThumbnailWidth = $this->Square ? $this->ThumbnailSize : $thumbImg->getWidth();
-					$item->ThumbnailHeight = $this->ThumbnailSize;
-					
-					if($item->Image()->Landscape())
-						$normalImg = $item->Image()->SetWidth($this->NormalSize);
-					else
-						$normalImg = $item->Image()->SetHeight($this->NormalSize);
-	
-					$item->ViewLink = $normalImg->URL;
-					$item->setUI($this->UI);
-				}
-				// XXX: it would be nice to have some error-reporting for failed thumbs here..
-			}
-	  	return $this->UI->updateItems($items);
+		// Prepare each item
+		foreach ($items as $item) {
+			
+			// Thumbnail details
+			$thumbImg = $item->Thumbnail();
+			$item->ThumbnailURL = $thumbImg->URL;
+			$item->ThumbnailWidth = $thumbImg->getWidth();
+			$item->ThumbnailHeight = $thumbImg->getHeight();
+
+			// Normal details
+			$normalImg = $item->Large();
+			$item->ViewLink = $normalImg->URL;
+			
+			// Propegate UI
+			$item->setUI($this->UI);
 		}
-		return false;
+		return $this->UI->updateItems($items);
 	}
-	
-	public function PreviousGalleryItems()
-	{
-		if(isset($_REQUEST['start']) && is_numeric($_REQUEST['start']) && $this->MediaPerPage) {
+
+	public function PreviousGalleryItems() {
+		if (isset($_REQUEST['start']) && is_numeric($_REQUEST['start']) && $this->MediaPerPage) {
 			return $this->GalleryItems("0, " . $_REQUEST['start']);
 		}
 		return false;
 	}
-	
-	public function NextGalleryItems()
-	{
-		if($_REQUEST['start'] > 0 && $this->MediaPerPage)
-			return $this->GalleryItems($_REQUEST['start']+$this->MediaPerPage . ",999");
 
-		return $this->GalleryItems($this->MediaPerPage.",999");
-
+	public function NextGalleryItems() {
+		if (isset($_REQUEST['start']) && is_numeric($_REQUEST['start']) && ($_REQUEST['start'] > 0) && $this->MediaPerPage) {
+			return $this->GalleryItems($_REQUEST['start'] + $this->MediaPerPage . ",999");
+		}
+		return $this->GalleryItems($this->MediaPerPage . ",999");
 	}
-	
-	public function AllGalleryItems()
-	{
+
+	public function AllGalleryItems() {
 		return $this->GalleryItems("0,999");
 	}
-	
-	public function GalleryLayout()
-	{
+
+	public function GalleryLayout() {
 		return $this->customise(array(
 			'GalleryItems' => $this->GalleryItems(),
 			'PreviousGalleryItems' => $this->PreviousGalleryItems(),
 			'NextGalleryItems' => $this->NextGalleryItems()
 		))->renderWith(array($this->UI->layout_template));
 	}
-	
-	
-	
-	
+
 }
 
-class ImageGalleryPage_Controller extends Page_Controller
-{
-	
-	public function init() 
-	{
+class ImageGalleryPage_Controller extends Page_Controller {
+
+	public function init() {
 
 		parent::init();
 		Requirements::themedCSS('ImageGallery');
 	}
-	
-	public function index()
-	{
-			if($this->SingleAlbumView())
-				return $this->renderWith(array($this->getModelClass().'_album','Page'));
-			return $this->renderWith(array('ImageGalleryPage','Page'));
+
+	public function index() {
+		if ($this->SingleAlbumView()) {
+			return $this->renderWith(array($this->getModelClass() . '_album', 'ImageGalleryPage_album', 'Page'));
+		} else {
+			return $this->renderWith(array($this->getModelClass(), 'ImageGalleryPage', 'Page'));
+		}
 	}
-				
-	private function getModelClass()
-	{
-	  return str_replace("_Controller","",$this->class);
+
+	private function getModelClass() {
+		return str_replace("_Controller", "", $this->class);
 	}
-	
-	private function getModel()
-	{
-    return DataObject::get_by_id($this->getModelClass(),$this->ID);
+
+	private function getModel() {
+		return DataObject::get_by_id($this->getModelClass(), $this->ID);
 	}
-	
-	
-	protected function adjacentAlbum($dir) 
-  { 
-      $t = $dir == "next" ? ">" : "<"; 
-      $sort = $dir == "next" ? "ASC" : "DESC"; 
-      return DataObject::get_one( 
-         $this->albumClass, 
-         "ImageGalleryPageID = {$this->ID} AND SortOrder $t {$this->CurrentAlbum()->SortOrder}", 
-         false, 
-         "SortOrder $sort" 
-      );      
-  }	
-  
-  public function NextAlbum()
-	{
+
+	protected function adjacentAlbum($dir) {
+		$currentAlbum = $this->CurrentAlbum();
+		if(empty($currentAlbum)) return null;
+		
+		$direction = ($dir == "next") ? ">" : "<";
+		$sort = ($dir == "next") ? "ASC" : "DESC";
+		$parentID = Convert::raw2sql($this->ID);
+		$adjacentID = Convert::raw2sql($currentAlbum->ID);
+		$adjacentSort = Convert::raw2sql($currentAlbum->SortOrder);
+		// Get next/previous album by sort (or ID if sort values haven't been set)
+		$filter =
+			"\"ImageGalleryAlbum\".\"ImageGalleryPageID\" = '$parentID' AND
+			\"ImageGalleryAlbum\".\"SortOrder\" {$direction} '$adjacentSort' OR (
+				\"ImageGalleryAlbum\".\"SortOrder\" = '$adjacentSort'
+				AND \"ImageGalleryAlbum\".\"ID\" {$direction} '$adjacentID'
+			)";
+		return DataObject::get_one($this->AlbumClass, $filter, false, "\"SortOrder\" $sort, \"ID\" $sort");
+	}
+
+	public function NextAlbum() {
 		return $this->adjacentAlbum("next");
 	}
 
-	public function PrevAlbum()
-	{
+	public function PrevAlbum() {
 		return $this->adjacentAlbum("prev");
 	}
-	
+
 	public function album() {
-		if(!$this->CurrentAlbum()) {
+		if (!$this->CurrentAlbum()) {
 			return $this->httpError(404);
 		}
 		return array();
 	}
-		
-	
-	
-	
 
 }
-
-?>

@@ -1,85 +1,130 @@
 <?php
 
-class ImageGalleryAlbum extends DataObject
-{
-	static $db = array (
+class ImageGalleryAlbum extends DataObject {
+
+	private static $db = array(
 		'AlbumName' => 'Varchar(255)',
-		'Description' => 'Text'
+		'Description' => 'Text',
+		'SortOrder' => 'Int',
+		'URLSegment' => 'Varchar(255)'
 	);
-	
-	static $has_one = array (
+
+	private static $has_one = array(
 		'CoverImage' => 'Image',
 		'ImageGalleryPage' => 'ImageGalleryPage',
 		'Folder' => 'Folder'
 	);
-	
-	static $has_many = array (
+
+	private static $has_many = array(
 		'GalleryItems' => 'ImageGalleryItem'
 	);
 	
-
+	private static $summary_fields = array(
+		'CoverImage.CMSThumbnail' => 'Cover Image',
+		'AlbumName' => 'Album Name', 
+		'Description' => 'Description'
+	);
 	
-	public function getCMSFields_forPopup()
-	{
-		return new FieldSet(
-			new TextField('AlbumName', _t('ImageGalleryAlbum.ALBUMTITLE','Album Title')),
+	private static $default_sort = '"SortOrder" ASC';
+	
+	public function getTitle() {
+		if($this->AlbumName) return $this->AlbumName;
+		return parent::getTitle();
+	}
+
+	public function getCMSFields() {
+		$fields = new FieldList(new TabSet('Root'));
+		
+		// Details
+		$thumbnailField = new UploadField('CoverImage',_t('ImageGalleryAlbum.COVERIMAGE','Cover Image'));
+		$thumbnailField->getValidator()->setAllowedExtensions(File::config()->app_categories['image']);
+		$fields->addFieldsToTab('Root.Main', array(
+			new TextField('AlbumName', _t('ImageGalleryAlbum.ALBUMTITLE','Album Title'), null, 255),
 			new TextareaField('Description', _t('ImageGalleryAlbum.DESCRIPTION','Description')),
-			new ImageUploadField('CoverImage',_t('ImageGalleryAlbum.COVERIMAGE','Cover Image'))
+			$thumbnailField
+		));
+		
+		// Image listing
+		$galleryConfig = GridFieldConfig_RecordEditor::create();
+		
+		// Enable bulk image loading if necessary module is installed
+		// @see composer.json/suggests
+		if(class_exists('GridFieldBulkManager')) {
+			$galleryConfig->addComponent(new GridFieldBulkManager());
+		}
+		if(class_exists('GridFieldBulkImageUpload')) {
+			$galleryConfig->addComponents($imageConfig = new GridFieldBulkImageUpload('ImageID'));
+			$imageConfig->setConfig('fieldsClassBlacklist', array('ImageField', 'UploadField', 'FileField'));
+			if($uploadFolder = $this->Folder()) {
+				// Set upload folder - Clean up 'assets' from target path
+				$path = preg_replace('/(^'.ASSETS_DIR.'\/?)|(\/$)/i', '', $uploadFolder->RelativePath);
+				$imageConfig->setConfig('folderName', $path);
+			}
+		}
+		
+		// Enable image sorting if necessary module is installed
+		// @see composer.json/suggests
+		if(class_exists('GridFieldSortableRows')) {
+			$galleryConfig->addComponent(new GridFieldSortableRows('SortOrder'));
+		}
+		
+		$galleryField = new GridField('GalleryItems', 'Gallery Items', $this->GalleryItems(), $galleryConfig);
+		$fields->addFieldToTab('Root.Images', $galleryField);
+		
+		return $fields;
+	}
+
+	public function Link() {
+		return Controller::join_links(
+			$this->ImageGalleryPage()->Link('album'), 
+			$this->URLSegment
+		);
+	}
+
+	public function LinkingMode() {
+		$params = Controller::curr()->getURLParams();
+		return (!empty($params['ID']) && $params['ID'] == $this->URLSegment) ? "current" : "link";
+	}
+
+	public function ImageCount() {
+		return $this->GalleryItems()->Count();
+	}
+
+	public function FormattedCoverImage() {
+		$page = $this->ImageGalleryPage();
+		return $this->CoverImage()->CroppedImage(
+			$page->CoverImageWidth,
+			$page->CoverImageHeight
 		);
 	}
 	
-	public function Link()
-	{
-		$name = $this->Folder()->Name;
-		if(!$name) {
-			$name = $this->FolderID;
-		}
-		return $this->ImageGalleryPage()->Link('album/'.$name);
-	}
-	
-	public function LinkingMode()
-	{
-		return Controller::curr()->urlParams['ID'] == $this->Folder()->Name ? "current" : "link";
-	}
-	
-	public function ImageCount()
-	{
-		$images = DataObject::get("ImageGalleryItem","AlbumID = {$this->ID}"); 
-		return $images ? $images->Count() : 0;
-	}
-	
-	public function FormattedCoverImage()
-	{
-		return $this->CoverImage()->CroppedImage($this->ImageGalleryPage()->CoverImageWidth,$this->ImageGalleryPage()->CoverImageHeight);
-	}
-	
-	function onBeforeWrite()
-	{
+	function onBeforeWrite() {
 		parent::onBeforeWrite();
-		if(isset($_POST['AlbumName'])) {
-		  $clean_name = SiteTree::generateURLSegment($_POST['AlbumName']);
-			if($this->FolderID) {
-				$this->Folder()->setName($clean_name);
-				$this->Folder()->Title = $clean_name;
+		$this->checkURLSegment();
+		$this->checkFolder();
+	}
 
-				$this->Folder()->write();
-			}
-			else {
-				$folder = Folder::findOrMake('image-gallery/'.$this->ImageGalleryPage()->RootFolder()->Name.'/'.$clean_name);
-				$this->FolderID = $folder->ID;
-			}
+	function checkFolder() {
+		// Ensure the album folder exists
+		if (!(($folder = $this->Folder()) && $folder->exists())
+			&& $this->URLSegment
+			&& (($page = $this->ImageGalleryPage()) && $page->exists()) 
+			&& (($rootFolder = $page->RootFolder()) && $rootfolder->exists())
+		) {
+			$folder = Folder::findOrMake("image-gallery/{$rootFolder->Name}/{$this->URLSegment}");
+			$this->FolderID = $folder->ID;
 		}
 	}
 	
-	function onBeforeDelete()
-	{
+	public function checkURLSegment() {
+		$filter = URLSegmentFilter::create();
+		$this->URLSegment = $filter->filter($this->AlbumName);
+	}
+
+	function onBeforeDelete() {
 		parent::onBeforeDelete();
 		$this->GalleryItems()->removeAll();
 		$this->Folder()->delete();
 	}
-	
-	
+
 }
-
-
-?>

@@ -18,16 +18,6 @@ $lang['es_ES']['ImageGalleryAlbum']['SINGULARNAME'] = array(
 	50,
 	'Singular name of the object, used in dropdowns and to generally identify a single object in the interface'
 );
-$lang['es_ES']['ImageGalleryImage']['PLURALNAME'] = array(
-	'Archivos',
-	50,
-	'Plural name of the object, used in dropdowns and to generally identify a collection of this object in the interface'
-);
-$lang['es_ES']['ImageGalleryImage']['SINGULARNAME'] = array(
-	'Archivo',
-	50,
-	'Singular name of the object, used in dropdowns and to generally identify a single object in the interface'
-);
 $lang['es_ES']['ImageGalleryItem']['ALBUM'] = 'Álbum';
 $lang['es_ES']['ImageGalleryItem']['CAPTION'] = 'Leyenda';
 $lang['es_ES']['ImageGalleryItem']['PLURALNAME'] = array(

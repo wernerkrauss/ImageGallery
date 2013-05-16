@@ -1,34 +1,37 @@
 <?php
 
-class ImageGallerySiteTree extends DataObjectDecorator
-{
-	
-	function getGalleryFor($url_segment)
-	{
-		return ($url_segment === null) ? DataObject::get_one("ImageGalleryPage") : DataObject::get_one("ImageGalleryPage","URLSegment='$url_segment'");
-	}
-	
-	function RecentImages($count = 5, $url_segment = null)
-	{
-		$gallery = $this->getGalleryFor($url_segment);
-		if($gallery) {
-			$items = DataObject::get("ImageGalleryItem","ImageGalleryPageID = {$gallery->ID}","Created DESC",null,$count);
-			return $gallery->GalleryItems(null,$items);
+/**
+ * @see SiteTree
+ */
+class ImageGallerySiteTree extends SiteTreeExtension {
+
+	function getGalleryFor($urlSegment) {
+		$galleries = DataObject::get("ImageGalleryPage");
+		if(!empty($urlSegment)) {
+			$galleries = $galleries->filter(array('URLSegment' => $urlSegment));
 		}
-		return false;		
+		return $galleries->first();
 	}
-	
-	function RecentImagesGallery($count = 5, $url_segment = null)
-	{
-		$gallery = $this->getGalleryFor($url_segment);
-		if($gallery) {
-  		Requirements::themedCSS('ImageGallery');
-  		return $this->owner->customise(array(
-  			'GalleryItems' => $this->RecentImages($count, $url_segment),
-  			'PreviousGalleryItems' => new DataObjectSet(),
-  			'NextGalleryItems' => new DataObjectSet()
-  		))->renderWith(array($gallery->UI->layout_template));
-	  }
-	  return false;
+
+	function RecentImages($count = 5, $urlSegment = null) {
+		$gallery = $this->getGalleryFor($urlSegment);
+		if ($gallery) {
+			return $gallery->GalleryItems()->sort('"Created" DESC')->limit($count);
+		}
+		return false;
 	}
+
+	function RecentImagesGallery($count = 5, $urlSegment = null) {
+		$gallery = $this->getGalleryFor($urlSegment);
+		if ($gallery) {
+			Requirements::themedCSS('ImageGallery');
+			return $this->owner->customise(array(
+				'GalleryItems' => $this->RecentImages($count, $urlSegment),
+				'PreviousGalleryItems' => new ArrayList(),
+				'NextGalleryItems' => new ArrayList()
+			))->renderWith(array($gallery->UI->layout_template));
+		}
+		return false;
+	}
+
 }

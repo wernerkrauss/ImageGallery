@@ -5,7 +5,8 @@
 	"keywords": ["silverstripe", "image", "gallery"],
     "authors": [
         {
-            "name": "Uncle Cheese",
+			"name": "Aaron Carlino",
+			"homepage": "http://leftandmain.com",
             "email": "unclecheese@leftandmain.com"
         },
         {
@@ -14,12 +15,16 @@
         }
     ],
     "require": {
-		"silverstripe/framework": "2.4.*-dev",
+		"silverstripe/framework": ">=3.1.*"
     },
 	"support": {
 		"issues": "https://github.com/tractorcow/ImageGallery/issues"
 	},
 	"extra": {
 		"installer-name": "image_gallery"
+	},
+	"suggests": {
+        "colymba/gridfield-bulk-editing-tools": "dev-master",
+		"undefinedoffset/sortablegridfield": "dev-master"
 	}
 }

@@ -1,0 +1,6 @@
+Image:
+  extensions:
+    - 'ImageGalleryImage'
+SiteTree:
+  extensions:
+    - 'ImageGallerySiteTree'
