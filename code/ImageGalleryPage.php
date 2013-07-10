@@ -284,6 +284,8 @@ class ImageGalleryPage extends Page {
 }
 
 class ImageGalleryPage_Controller extends Page_Controller {
+	
+	private static $allowed_actions = array('album');
 
 	public function init() {
 
