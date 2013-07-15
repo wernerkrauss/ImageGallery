@@ -79,7 +79,6 @@ class ImageGalleryPage extends Page {
 		if (!($livePage && $stagePage)) {
 			// delete existing Albums 
 			$this->Albums()->removeAll();
-			$this->RootFolder()->delete(); // delete root folder of ImageGalleryPage
 		}
 
 		parent::onBeforeDelete();
