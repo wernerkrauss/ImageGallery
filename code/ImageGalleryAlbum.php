@@ -109,7 +109,7 @@ class ImageGalleryAlbum extends DataObject {
 		if (!(($folder = $this->Folder()) && $folder->exists())
 			&& $this->URLSegment
 			&& (($page = $this->ImageGalleryPage()) && $page->exists()) 
-			&& (($rootFolder = $page->RootFolder()) && $rootfolder->exists())
+			&& (($rootFolder = $page->RootFolder()) && $rootFolder->exists())
 		) {
 			$folder = Folder::find_or_make("image-gallery/{$rootFolder->Name}/{$this->URLSegment}");
 			$this->FolderID = $folder->ID;
