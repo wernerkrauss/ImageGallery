@@ -90,7 +90,7 @@ class ImageGalleryPage extends Page {
 			&& !(($folder = $this->RootFolder()) && $folder->exists())
 			&& $this->URLSegment
 		) {
-			$folder = Folder::findOrMake("image-gallery/{$this->URLSegment}");
+			$folder = Folder::find_or_make("image-gallery/{$this->URLSegment}");
 			$this->RootFolderID = $folder->ID;
 		}
 	}

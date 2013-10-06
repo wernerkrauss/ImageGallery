@@ -111,7 +111,7 @@ class ImageGalleryAlbum extends DataObject {
 			&& (($page = $this->ImageGalleryPage()) && $page->exists()) 
 			&& (($rootFolder = $page->RootFolder()) && $rootfolder->exists())
 		) {
-			$folder = Folder::findOrMake("image-gallery/{$rootFolder->Name}/{$this->URLSegment}");
+			$folder = Folder::find_or_make("image-gallery/{$rootFolder->Name}/{$this->URLSegment}");
 			$this->FolderID = $folder->ID;
 		}
 	}
