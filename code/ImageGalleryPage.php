@@ -165,9 +165,10 @@ class ImageGalleryPage extends Page {
 		if ($this->currentAlbum) return $this->currentAlbum;
 		$params = Controller::curr()->getURLParams();
 		if (!empty($params['ID'])) {
-			$urlSegment = Convert::raw2sql($params['ID']);
-			$albums = DataObject::get($this->AlbumClass)->where("\"{$this->AlbumClass}\".\"URLSegment\" = '$urlSegment'");
-			return $albums ? $albums->First() : false;
+			return DataObject::get($this->AlbumClass)->filter(array(
+				"URLSegment" => $params['ID'],
+				"ImageGalleryPageID" => $this->ID
+			))->first();
 		}
 		return false;
 	}
@@ -222,11 +223,11 @@ class ImageGalleryPage extends Page {
 			$limit = "{$start},{$this->MediaPerPage}";
 		}
 
-		$filters = array("\"ImageGalleryItem\".\"ImageGalleryPageID\" = '".Convert::raw2sql($this->ID)."'");
+		$items = DataObject::get($this->ItemClass)->sort('"SortOrder" ASC')->limit($limit);
 		if($album = $this->CurrentAlbum()) {
-			$filters[] = "\"ImageGalleryItem\".\"AlbumID\" = '".Convert::raw2sql($album->ID)."'";
+			$items = $items->filter('AlbumID', $album->ID);
 		}
-		return DataObject::get($this->ItemClass, implode(' AND ', $filters), '"SortOrder" ASC', null, $limit);
+		return $items;
 	}
 
 	public function GalleryItems($limit = null, $items = null) {
