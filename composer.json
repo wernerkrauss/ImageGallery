@@ -1,22 +1,22 @@
 {
-    "name": "tractorcow/silverstripe-imagegallery",
-    "description": "Simple image gallery module for Silverstripe",
+	"name": "tractorcow/silverstripe-imagegallery",
+	"description": "Simple image gallery module for Silverstripe",
 	"type": "silverstripe-module",
 	"keywords": ["silverstripe", "image", "gallery"],
-    "authors": [
-        {
+	"authors": [
+		{
 			"name": "Aaron Carlino",
 			"homepage": "http://leftandmain.com",
-            "email": "unclecheese@leftandmain.com"
-        },
-        {
-            "name": "Damian Mooyman",
-            "email": "damian.mooyman@gmail.com"
-        }
-    ],
-    "require": {
+			"email": "unclecheese@leftandmain.com"
+		},
+		{
+			"name": "Damian Mooyman",
+			"email": "damian.mooyman@gmail.com"
+		}
+	],
+	"require": {
 		"silverstripe/framework": ">=3.1"
-    },
+	},
 	"support": {
 		"issues": "https://github.com/tractorcow/ImageGallery/issues"
 	},
@@ -24,7 +24,7 @@
 		"installer-name": "image_gallery"
 	},
 	"suggests": {
-        "colymba/gridfield-bulk-editing-tools": "dev-master",
+		"colymba/gridfield-bulk-editing-tools": "dev-master",
 		"undefinedoffset/sortablegridfield": "dev-master"
 	}
 }

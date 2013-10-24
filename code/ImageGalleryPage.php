@@ -233,7 +233,7 @@ class ImageGalleryPage extends Page {
 	public function GalleryItems($limit = null, $items = null) {
 
 		// Check items and UI are ready
-		if (empty($items)) $items = $this->Items($limit);
+		if (empty($items)) $items = new ArrayList($this->Items($limit)->toArray());
 		$this->includeUI();
 		
 		// Prepare each item

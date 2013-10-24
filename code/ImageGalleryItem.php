@@ -7,7 +7,7 @@ class ImageGalleryItem extends DataObject {
 	 * 
 	 * @var ImageGalleryUI
 	 */
-	protected $ui;
+	protected $UI;
 
 	/**
 	 * @config
