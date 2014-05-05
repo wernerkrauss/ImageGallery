@@ -1,0 +1,61 @@
+de:
+  ImageGalleryAlbum:
+    ALBUMNAME: Album Name: 
+    ALBUMTITLE: Album Titel: 
+    COVERIMAGE: Cover Image: 
+    DESCRIPTION: Beschreibung: 
+    
+    ALBUM: Album: 
+    CAPTION: Caption: 
+  ImageGalleryManager:
+    CHOOSEALBUM: Wählen Sie ein Album: 
+    DATAOBJECTMANAGER: ImageGallery benötigt das DataObjectManager Modul.: 
+    ERROR: Fehler: 
+    ROTATECLOCKWISE: Im Uhrzeigersinn drehen: 
+    ROTATECOUNTERCLOCKWISE: Gegen den Uhrzeigersinn drehen: 
+    ROTATING: Drehe: 
+    UPLOADFROMPC: Von meinem Computerh hochladen: 
+    UPLOADIMAGES: Lade Bilder hoch: 
+    UPLOADIMAGESTO: Bilder nach "%s" hochladen: 
+  ImageGalleryPage:
+    ALBUM: Album: 
+    ALBUMCOVERIMAGES: Album cover images: 
+    ALBUMS: Albums: 
+    ALBUMSNOTSAVED: You may add albums to your gallery once you have saved the page for the first time.: 
+    ANALBUM: ein Album: 
+    CONFIGURATION: Konfiguration: 
+    IMAGES: Bilder: 
+    IMAGESPERPAGE: Anzahl der Bilder pro Seite: 
+    MAXFILES: Maximale Anzahl der Bilder in der Upload-Warteschlange: 
+    NOALBUMS: You have no albums. Click on the Albums tab to create at least one album before adding photos.: 
+    NORMALSIZE: Normal size (pixels): 
+    PHOTOS: Fotos: 
+    PHOTOSNOTSAVED: You may add photos to your gallery once you have saved the page for the first time.: 
+    POPUPSTYLE: Popup style: 
+    THUMBNAILSIZE: Thumbnail size (pixels): 
+    TO: to: 
+  ImageGalleryPage.ss:
+    ALBUMSINGALLERY: Albums in %s: 
+  ImageGalleryPage_album.ss:
+    GOTOALBUM: Zum Album "%s": 
+    NEXT: Nächstes: 
+    NEXTALBUM: Nächstes Album: 
+    PREVIOUS: Vorheriges: 
+    PREVIOUSALBUM: Vorheriges Album: 
+    VIEWNEXTPAGE: zur nächsten Seite: 
+    VIEWPAGENUMBER: zur Seite Nummer %s: 
+    VIEWPREVIOUSPAGE: zur vorherigen Seite: 
+    
+  AlbumList:
+    IMAGECOUNT: '%s&nbsp;Fotos'
+    
+  AlbumImages:
+    GOTOALBUM: 'Zum Album %s'
+    PREVIOUSALBUM: 'Vorheriges Album'
+    NEXTALBUM: 'Nächstes Album'
+    VIEWPREVIOUSPAGE: 'Vorherige Seite'
+    PREVIOUS: 'Vorherige'
+    VIEWPAGENUMBER: 'Zur Seite %s'
+    VIEWNEXTPAGE: 'Nächste Seite'
+    NEXT: 'Nächste'
+  
