@@ -20,7 +20,7 @@ class ImageGalleryPage extends Page {
 	);
 
 	private static $has_one = array(
-		'RootFolder' => 'Folder'
+//		'RootFolder' => 'Folder'
 	);
 
 	private static $defaults = array(
@@ -65,7 +65,7 @@ class ImageGalleryPage extends Page {
 
 	function onBeforeWrite() {
 		parent::onBeforeWrite();
-		$this->checkFolder();
+//		$this->checkFolder();
 	}
 
 	function onBeforeDelete() {
