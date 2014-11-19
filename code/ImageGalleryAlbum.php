@@ -53,7 +53,7 @@ class ImageGalleryAlbum extends DataObject {
 			$galleryConfig->addComponent(new GridFieldBulkManager());
 		}
 		if(class_exists('GridFieldBulkUpload')) {
-			$galleryConfig->addComponents($imageConfig = new GridFieldBulkUpload('Folder'));
+			$galleryConfig->addComponents($imageConfig = new GridFieldBulkUpload('Image'));
 			if($uploadFolder = $this->Folder()) {
 				// Set upload folder - Clean up 'assets' from target path
 				$path = preg_replace('/(^'.ASSETS_DIR.'\/?)|(\/$)/i', '', $uploadFolder->RelativePath);
