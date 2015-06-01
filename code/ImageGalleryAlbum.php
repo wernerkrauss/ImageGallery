@@ -54,11 +54,11 @@ class ImageGalleryAlbum extends DataObject {
 		}
 		if(class_exists('GridFieldBulkUpload')) {
 			$galleryConfig->addComponents($imageConfig = new GridFieldBulkUpload('Image'));
-			$imageConfig->setConfig('fieldsClassBlacklist', array('ImageField', 'UploadField', 'FileField'));
+		//	$imageConfig->setConfig('fieldsClassBlacklist', array('ImageField', 'UploadField', 'FileField'));
 			if($uploadFolder = $this->Folder()) {
 				// Set upload folder - Clean up 'assets' from target path
 				$path = preg_replace('/(^'.ASSETS_DIR.'\/?)|(\/$)/i', '', $uploadFolder->RelativePath);
-				$imageConfig->setConfig('folderName', $path);
+				$imageConfig->setUfSetup('setFolderName', $path);
 			}
 		}
 		
@@ -67,7 +67,17 @@ class ImageGalleryAlbum extends DataObject {
 		if(class_exists('GridFieldSortableRows')) {
 			$galleryConfig->addComponent(new GridFieldSortableRows('SortOrder'));
 		}
-		
+
+		//use show all paginator instead
+		if(class_exists('GridFieldPaginatorWithShowAll')) {
+			$galleryConfig->removeComponentsByType('GridFieldPaginator');
+			$galleryConfig->addComponent(new GridFieldPaginatorWithShowAll());
+		}
+
+		if(class_exists('GridFieldGalleryTheme')) {
+			$galleryConfig->addComponent(new GridFieldGalleryTheme('Image'));
+		}
+
 		$galleryField = new GridField('GalleryItems', 'Gallery Items', $this->GalleryItems(), $galleryConfig);
 		$fields->addFieldToTab('Root.Images', $galleryField);
 
