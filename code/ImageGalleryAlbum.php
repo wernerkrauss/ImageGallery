@@ -46,26 +46,19 @@ class ImageGalleryAlbum extends DataObject {
 		
 		// Image listing
 		$galleryConfig = GridFieldConfig_RecordEditor::create();
-		
+
 		// Enable bulk image loading if necessary module is installed
 		// @see composer.json/suggests
 		if(class_exists('GridFieldBulkManager')) {
 			$galleryConfig->addComponent(new GridFieldBulkManager());
 		}
-		if(class_exists('GridFieldBulkImageUpload')) {
-			$galleryConfig->addComponents($imageConfig = new GridFieldBulkImageUpload('Image'));
-			$imageConfig->setConfig('fieldsClassBlacklist', array('ImageField', 'UploadField', 'FileField'));
+		if(class_exists('GridFieldBulkUpload')) {
+			$galleryConfig->addComponents($imageConfig = new GridFieldBulkUpload('Image'));
 			if($uploadFolder = $this->Folder()) {
 				// Set upload folder - Clean up 'assets' from target path
 				$path = preg_replace('/(^'.ASSETS_DIR.'\/?)|(\/$)/i', '', $uploadFolder->RelativePath);
-				$imageConfig->setConfig('folderName', $path);
+				$imageConfig->setUfSetup('setFolderName', $path);
 			}
-		}
-		
-		// Enable image sorting if necessary module is installed
-		// @see composer.json/suggests
-		if(class_exists('GridFieldSortableRows')) {
-			$galleryConfig->addComponent(new GridFieldSortableRows('SortOrder'));
 		}
 		
 		$galleryField = new GridField('GalleryItems', 'Gallery Items', $this->GalleryItems(), $galleryConfig);
