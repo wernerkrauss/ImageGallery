@@ -61,6 +61,12 @@ class ImageGalleryAlbum extends DataObject {
 			}
 		}
 		
+		// Enable image sorting if necessary module is installed
+		// @see composer.json/suggests
+		if (class_exists('GridFieldSortableRows')) {
+			$galleryConfig->addComponent(new GridFieldSortableRows('SortOrder'));
+		}
+
 		$galleryField = new GridField('GalleryItems', 'Gallery Items', $this->GalleryItems(), $galleryConfig);
 		$fields->addFieldToTab('Root.Images', $galleryField);
 		
