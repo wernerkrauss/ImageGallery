@@ -1,5 +1,24 @@
 <?php
 
+namespace TractorCow\ImageGallery\Model;
+
+use DataObject;
+use FieldList;
+use TabSet;
+use UploadField;
+use File;
+use TextField;
+use TextareaField;
+use GridFieldConfig_RecordEditor;
+use GridFieldBulkManager;
+use GridFieldBulkUpload;
+use GridFieldSortableRows;
+use GridField;
+use Controller;
+use Folder;
+use URLSegmentFilter;
+
+
 class ImageGalleryAlbum extends DataObject
 {
 

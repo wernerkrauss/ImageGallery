@@ -1,5 +1,11 @@
 <?php
 
+namespace TractorCow\ImageGallery\Model;
+
+use DataExtension;
+use GD;
+
+
 /**
  * @see Image
  */

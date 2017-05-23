@@ -1,5 +1,17 @@
 <?php
 
+namespace TractorCow\ImageGallery\Model;
+
+use DataObject;
+use FieldList;
+use TabSet;
+use TextareaField;
+use UploadField;
+use File;
+use ImageGalleryUI;
+use Permission;
+
+
 class ImageGalleryItem extends DataObject
 {
 

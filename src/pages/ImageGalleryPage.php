@@ -1,5 +1,30 @@
 <?php
 
+namespace TractorCow\ImageGallery\Pages;
+
+use Page;
+use Versioned;
+use Folder;
+use ClassInfo;
+use Tab;
+use FieldGroup;
+use NumericField;
+use CheckboxField;
+use OptionsetField;
+use GridFieldConfig_RecordEditor;
+use GridFieldBulkManager;
+use GridFieldSortableRows;
+use GridField;
+use HeaderField;
+use Controller;
+use DataObject;
+use Requirements;
+use Object;
+use ArrayList;
+use Page_Controller;
+use Convert;
+
+
 class ImageGalleryPage extends Page
 {
     

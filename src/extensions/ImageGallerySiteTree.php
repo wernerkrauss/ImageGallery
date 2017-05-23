@@ -1,5 +1,13 @@
 <?php
 
+namespace TractorCow\ImageGallery\Extensions;
+
+use SiteTreeExtension;
+use DataObject;
+use Requirements;
+use ArrayList;
+
+
 /**
  * @see SiteTree
  */
