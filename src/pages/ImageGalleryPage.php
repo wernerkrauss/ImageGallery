@@ -2,60 +2,39 @@
 
 namespace TractorCow\ImageGallery\Pages;
 
-use Page;
-
-
-
-
-
-
-
-
-
-
+use Colymba\BulkManager\BulkManager;
 use GridFieldSortableRows;
-
-
-
-
-
-
-
-
-
+use Page;
+use PageController;
 use SilverStripe\Assets\Folder;
+use SilverStripe\Control\Controller;
+use SilverStripe\Core\ClassInfo;
+use SilverStripe\Core\Convert;
+use SilverStripe\Core\Object;
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\FieldGroup;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\Forms\HeaderField;
+use SilverStripe\Forms\NumericField;
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\Tab;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Versioned\Versioned;
+use SilverStripe\View\Requirements;
 use TractorCow\ImageGallery\Model\ImageGalleryAlbum;
 use TractorCow\ImageGallery\Model\ImageGalleryItem;
-use SilverStripe\Versioned\Versioned;
-use SilverStripe\Core\ClassInfo;
-use SilverStripe\Forms\Tab;
-use SilverStripe\Forms\NumericField;
-use SilverStripe\Forms\FieldGroup;
-use SilverStripe\Forms\CheckboxField;
-use SilverStripe\Forms\OptionsetField;
-use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
-use Colymba\BulkManager\BulkManager;
-use SilverStripe\Forms\GridField\GridField;
-use SilverStripe\Forms\HeaderField;
-use SilverStripe\Control\Controller;
-use SilverStripe\ORM\DataObject;
-use SilverStripe\View\Requirements;
-use SilverStripe\Core\Object;
-use SilverStripe\ORM\ArrayList;
-use TractorCow\ImageGallery\Pages\ImageGalleryPage;
-use SilverStripe\Core\Convert;
-use PageController;
-
 
 
 class ImageGalleryPage extends Page
 {
-    
+
     protected $currentAlbum = null;
-    
+
     private static $icon = 'image_gallery/images/image-gallery-icon.png';
 
-    private static $db = array(
+    private static $db = [
         'GalleryUI' => "Varchar(50)",
         'CoverImageWidth' => 'Int',
         'CoverImageHeight' => 'Int',
@@ -66,13 +45,13 @@ class ImageGalleryPage extends Page
         'NormalHeight' => 'Int',
         'MediaPerPage' => 'Int',
         'UploadLimit' => 'Int'
-    );
+    ];
 
-    private static $has_one = array(
+    private static $has_one = [
         'RootFolder' => Folder::class
-    );
+    ];
 
-    private static $defaults = array(
+    private static $defaults = [
         'CoverImageWidth' => '128',
         'CoverImageHeight' => '128',
         'ThumbnailSize' => '128',
@@ -83,12 +62,12 @@ class ImageGalleryPage extends Page
         'MediaPerLine' => '6',
         'UploadLimit' => '20',
         'GalleryUI' => 'Lightbox'
-    );
+    ];
 
-    private static $has_many = array(
+    private static $has_many = [
         'Albums' => ImageGalleryAlbum::class,
         'GalleryItems' => ImageGalleryItem::class
-    );
+    ];
 
     /**
      * @config
@@ -130,7 +109,7 @@ class ImageGalleryPage extends Page
 
         // if Page only exists in Live OR Stage mode -> Page will be deleted completely
         if (!($livePage && $stagePage)) {
-            // delete existing Albums 
+            // delete existing Albums
             $this->Albums()->removeAll();
         }
 
@@ -151,42 +130,54 @@ class ImageGalleryPage extends Page
 
     public function getCMSFields()
     {
-        
+
         // Get list of UI options
-        $popupMap = array();
+        $popupMap = [];
         foreach (ClassInfo::subclassesFor("ImageGalleryUI") as $ui) {
             if ($ui == "ImageGalleryUI") {
                 continue;
             }
-            
+
             $uiLabel = $ui::$label;
             $demoURL = $ui::$link_to_demo;
             $demoLink = !empty($demoURL)
-                    ? sprintf('<a href="%s" target="_blank">%s</a>', $demoURL, _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.VIEWDEMO', 'view demo'))
-                    : "";
+                ? sprintf('<a href="%s" target="_blank">%s</a>', $demoURL,
+                    _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.VIEWDEMO', 'view demo'))
+                : "";
             $popupMap[$ui] = "$uiLabel $demoLink";
         }
 
         $fields = parent::getCMSFields();
-        
+
         // Build configuration fields
         $fields->addFieldToTab('Root', $configTab = new Tab('Configuration'));
         $configTab->setTitle(_t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.CONFIGURATION', 'Configuration'));
-        $fields->addFieldsToTab("Root.Configuration", array(
+        $fields->addFieldsToTab("Root.Configuration", [
             $coverImages = new FieldGroup(
-                new NumericField('CoverImageWidth', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.WIDTH', 'Width')),
-                new NumericField('CoverImageHeight', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.HEIGHT', 'Height'))
+                new NumericField('CoverImageWidth',
+                    _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.WIDTH', 'Width')),
+                new NumericField('CoverImageHeight',
+                    _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.HEIGHT', 'Height'))
             ),
-            new NumericField('ThumbnailSize', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.THUMBNAILHEIGHT', 'Thumbnail height (pixels)')),
-            new CheckboxField('Square', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.CROPTOSQUARE', 'Crop thumbnails to square')),
-            new NumericField('MediumSize', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MEDIUMSIZE', 'Medium size (pixels)')),
-            new NumericField('NormalSize', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALSIZE', 'Normal width (pixels)')),
-            new NumericField('NormalHeight', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALHEIGHT', 'Normal height (pixels)')),
-            new NumericField('MediaPerPage', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.IMAGESPERPAGE', 'Number of images per page')),
-            new OptionsetField('GalleryUI', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.POPUPSTYLE', 'Popup style'), $popupMap),
-            new NumericField('UploadLimit', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MAXFILES', 'Max files allowed in upload queue'))
-        ));
-        $coverImages->setTitle(_t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMCOVERIMAGES', 'Album cover images'));
+            new NumericField('ThumbnailSize',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.THUMBNAILHEIGHT', 'Thumbnail height (pixels)')),
+            new CheckboxField('Square',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.CROPTOSQUARE', 'Crop thumbnails to square')),
+            new NumericField('MediumSize',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MEDIUMSIZE', 'Medium size (pixels)')),
+            new NumericField('NormalSize',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALSIZE', 'Normal width (pixels)')),
+            new NumericField('NormalHeight',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALHEIGHT', 'Normal height (pixels)')),
+            new NumericField('MediaPerPage',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.IMAGESPERPAGE', 'Number of images per page')),
+            new OptionsetField('GalleryUI',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.POPUPSTYLE', 'Popup style'), $popupMap),
+            new NumericField('UploadLimit',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MAXFILES', 'Max files allowed in upload queue'))
+        ]);
+        $coverImages->setTitle(_t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMCOVERIMAGES',
+            'Album cover images'));
 
         // Build albums tab
         $fields->addFieldToTab('Root', $albumTab = new Tab('Albums'));
@@ -209,12 +200,13 @@ class ImageGalleryPage extends Page
             $fields->addFieldToTab(
                 "Root.Albums",
                 new HeaderField(
-                    _t("TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMSNOTSAVED", "You may add albums to your gallery once you have saved the page for the first time."),
+                    _t("TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMSNOTSAVED",
+                        "You may add albums to your gallery once you have saved the page for the first time."),
                     $headingLevel = "3"
                 )
             );
         }
-        
+
         return $fields;
     }
 
@@ -225,10 +217,10 @@ class ImageGalleryPage extends Page
         }
         $params = Controller::curr()->getURLParams();
         if (!empty($params['ID'])) {
-            return DataObject::get($this->AlbumClass)->filter(array(
+            return DataObject::get($this->AlbumClass)->filter([
                 "URLSegment" => $params['ID'],
                 "ImageGalleryPageID" => $this->ID
-            ))->first();
+            ])->first();
         }
         return false;
     }
@@ -266,8 +258,8 @@ class ImageGalleryPage extends Page
     public function GalleryUI()
     {
         return $this->GalleryUI
-                ? $this->GalleryUI
-                : self::get_default_ui();
+            ? $this->GalleryUI
+            : self::get_default_ui();
     }
 
     public function includeUI()
@@ -307,10 +299,10 @@ class ImageGalleryPage extends Page
             $items = new ArrayList($this->Items($limit)->toArray());
         }
         $this->includeUI();
-        
+
         // Prepare each item
         foreach ($items as $item) {
-            
+
             // Thumbnail details
             $thumbImg = $item->Thumbnail();
             $item->ThumbnailURL = $thumbImg->URL;
@@ -320,7 +312,7 @@ class ImageGalleryPage extends Page
             // Normal details
             $normalImg = $item->Large();
             $item->ViewLink = $normalImg->URL;
-            
+
             // Propegate UI
             $item->setUI($this->UI);
         }
@@ -350,18 +342,18 @@ class ImageGalleryPage extends Page
 
     public function GalleryLayout()
     {
-        return $this->customise(array(
+        return $this->customise([
             'GalleryItems' => $this->GalleryItems(),
             'PreviousGalleryItems' => $this->PreviousGalleryItems(),
             'NextGalleryItems' => $this->NextGalleryItems()
-        ))->renderWith(array($this->UI->layout_template));
+        ])->renderWith([$this->UI->layout_template]);
     }
 }
 
 class ImageGalleryPage_Controller extends PageController
 {
-    
-    private static $allowed_actions = array('album');
+
+    private static $allowed_actions = ['album'];
 
     public function init()
     {
@@ -372,9 +364,9 @@ class ImageGalleryPage_Controller extends PageController
     public function index()
     {
         if ($this->SingleAlbumView()) {
-            return $this->renderWith(array($this->getModelClass() . '_album', 'ImageGalleryPage_album', 'Page'));
+            return $this->renderWith([$this->getModelClass() . '_album', 'ImageGalleryPage_album', 'Page']);
         } else {
-            return $this->renderWith(array($this->getModelClass(), ImageGalleryPage::class, 'Page'));
+            return $this->renderWith([$this->getModelClass(), ImageGalleryPage::class, 'Page']);
         }
     }
 
@@ -394,7 +386,7 @@ class ImageGalleryPage_Controller extends PageController
         if (empty($currentAlbum)) {
             return null;
         }
-        
+
         $direction = ($dir == "next") ? ">" : "<";
         $sort = ($dir == "next") ? "ASC" : "DESC";
         $parentID = Convert::raw2sql($this->ID);
@@ -425,6 +417,6 @@ class ImageGalleryPage_Controller extends PageController
         if (!$this->CurrentAlbum()) {
             return $this->httpError(404);
         }
-        return array();
+        return [];
     }
 }

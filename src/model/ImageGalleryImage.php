@@ -7,7 +7,6 @@ use GD;
 use SilverStripe\ORM\DataExtension;
 
 
-
 /**
  * @see Image
  */

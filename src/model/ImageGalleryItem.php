@@ -3,24 +3,16 @@
 namespace TractorCow\ImageGallery\Model;
 
 
-
-
-
-
-
 use ImageGalleryUI;
-
-use TractorCow\ImageGallery\Pages\ImageGalleryPage;
-use TractorCow\ImageGallery\Model\ImageGalleryAlbum;
-use SilverStripe\Assets\Image;
-use SilverStripe\Forms\TabSet;
-use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\TextareaField;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
-use SilverStripe\Security\Permission;
+use SilverStripe\Assets\Image;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\TabSet;
+use SilverStripe\Forms\TextareaField;
 use SilverStripe\ORM\DataObject;
-
+use SilverStripe\Security\Permission;
+use TractorCow\ImageGallery\Pages\ImageGalleryPage;
 
 
 class ImageGalleryItem extends DataObject
@@ -28,7 +20,7 @@ class ImageGalleryItem extends DataObject
 
     /**
      * User interface for gallery
-     * 
+     *
      * @var ImageGalleryUI
      */
     protected $UI;
@@ -38,7 +30,7 @@ class ImageGalleryItem extends DataObject
      * @var string
      */
     private static $delete_permission = "CMS_ACCESS_CMSMain";
-    
+
     public function getTitle()
     {
         if ($this->Caption) {
@@ -50,31 +42,32 @@ class ImageGalleryItem extends DataObject
         return parent::getTitle();
     }
 
-    private static $db = array(
+    private static $db = [
         'Caption' => 'Text',
         'SortOrder' => 'Int'
-    );
+    ];
 
-    private static $has_one = array(
+    private static $has_one = [
         'ImageGalleryPage' => ImageGalleryPage::class,
         'Album' => ImageGalleryAlbum::class,
         'Image' => Image::class
-    );
+    ];
 
     private static $default_sort = '"SortOrder" ASC';
-    
-    private static $summary_fields = array(
+
+    private static $summary_fields = [
         'Image.CMSThumbnail' => 'Image',
         'Caption' => 'Image Caption'
-    );
+    ];
 
     public function getCMSFields()
     {
         $fields = new FieldList(new TabSet('Root'));
-        
+
         // Details
-        $fields->addFieldToTab('Root.Main', new TextareaField('Caption', _t('TractorCow\\ImageGallery\\Model\\ImageGalleryItem.CAPTION', 'Caption')));
-        
+        $fields->addFieldToTab('Root.Main',
+            new TextareaField('Caption', _t('TractorCow\\ImageGallery\\Model\\ImageGalleryItem.CAPTION', 'Caption')));
+
         // Create image
         $imageField = new UploadField(Image::class);
         $imageField->getValidator()->setAllowedExtensions(File::config()->app_categories['image']);
@@ -117,8 +110,8 @@ class ImageGalleryItem extends DataObject
             return $image->SetWidth($this->ImageGalleryPage()->NormalSize);
         } else {
             $height = $page->NormalHeight > 0
-                    ? $page->NormalHeight
-                    : $page->NormalSize;
+                ? $page->NormalHeight
+                : $page->NormalSize;
             return $image->SetHeight($height);
         }
     }
@@ -131,7 +124,7 @@ class ImageGalleryItem extends DataObject
     public function GalleryItem()
     {
         if ($this->UI) {
-            return $this->renderWith(array($this->UI->item_template));
+            return $this->renderWith([$this->UI->item_template]);
         }
         return false;
     }
