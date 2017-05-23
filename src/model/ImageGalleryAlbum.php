@@ -2,21 +2,39 @@
 
 namespace TractorCow\ImageGallery\Model;
 
-use DataObject;
-use FieldList;
-use TabSet;
-use UploadField;
-use File;
-use TextField;
-use TextareaField;
-use GridFieldConfig_RecordEditor;
-use GridFieldBulkManager;
-use GridFieldBulkUpload;
+
+
+
+
+
+
+
+
+
+
 use GridFieldSortableRows;
-use GridField;
-use Controller;
-use Folder;
-use URLSegmentFilter;
+
+
+
+
+use SilverStripe\Assets\Image;
+use TractorCow\ImageGallery\Pages\ImageGalleryPage;
+use SilverStripe\Assets\Folder;
+use TractorCow\ImageGallery\Model\ImageGalleryItem;
+use SilverStripe\Forms\TabSet;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Assets\File;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\TextareaField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use Colymba\BulkManager\BulkManager;
+use Colymba\BulkUpload\BulkUploader;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Control\Controller;
+use SilverStripe\View\Parsers\URLSegmentFilter;
+use SilverStripe\ORM\DataObject;
+
 
 
 class ImageGalleryAlbum extends DataObject
@@ -30,13 +48,13 @@ class ImageGalleryAlbum extends DataObject
     );
 
     private static $has_one = array(
-        'CoverImage' => 'Image',
-        'ImageGalleryPage' => 'ImageGalleryPage',
-        'Folder' => 'Folder'
+        'CoverImage' => Image::class,
+        'ImageGalleryPage' => ImageGalleryPage::class,
+        'Folder' => Folder::class
     );
 
     private static $has_many = array(
-        'GalleryItems' => 'ImageGalleryItem'
+        'GalleryItems' => ImageGalleryItem::class
     );
 
     private static $summary_fields = array(
@@ -72,11 +90,11 @@ class ImageGalleryAlbum extends DataObject
 
 		// Enable bulk image loading if necessary module is installed
 		// @see composer.json/suggests
-		if(class_exists('GridFieldBulkManager')) {
-			$galleryConfig->addComponent(new GridFieldBulkManager());
+		if(class_exists(BulkManager::class)) {
+			$galleryConfig->addComponent(new BulkManager());
 		}
-		if(class_exists('GridFieldBulkUpload')) {
-			$galleryConfig->addComponents($imageConfig = new GridFieldBulkUpload('Image'));
+		if(class_exists(BulkUploader::class)) {
+			$galleryConfig->addComponents($imageConfig = new BulkUploader(Image::class));
 			if($uploadFolder = $this->Folder()) {
 				// Set upload folder - Clean up 'assets' from target path
 				$path = preg_replace('/(^'.ASSETS_DIR.'\/?)|(\/$)/i', '', $uploadFolder->RelativePath);

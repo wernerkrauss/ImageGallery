@@ -2,14 +2,25 @@
 
 namespace TractorCow\ImageGallery\Model;
 
-use DataObject;
-use FieldList;
-use TabSet;
-use TextareaField;
-use UploadField;
-use File;
+
+
+
+
+
+
 use ImageGalleryUI;
-use Permission;
+
+use TractorCow\ImageGallery\Pages\ImageGalleryPage;
+use TractorCow\ImageGallery\Model\ImageGalleryAlbum;
+use SilverStripe\Assets\Image;
+use SilverStripe\Forms\TabSet;
+use SilverStripe\Forms\FieldList;
+use SilverStripe\Forms\TextareaField;
+use SilverStripe\AssetAdmin\Forms\UploadField;
+use SilverStripe\Assets\File;
+use SilverStripe\Security\Permission;
+use SilverStripe\ORM\DataObject;
+
 
 
 class ImageGalleryItem extends DataObject
@@ -45,9 +56,9 @@ class ImageGalleryItem extends DataObject
     );
 
     private static $has_one = array(
-        'ImageGalleryPage' => 'ImageGalleryPage',
-        'Album' => 'ImageGalleryAlbum',
-        'Image' => 'Image'
+        'ImageGalleryPage' => ImageGalleryPage::class,
+        'Album' => ImageGalleryAlbum::class,
+        'Image' => Image::class
     );
 
     private static $default_sort = '"SortOrder" ASC';
@@ -65,7 +76,7 @@ class ImageGalleryItem extends DataObject
         $fields->addFieldToTab('Root.Main', new TextareaField('Caption', _t('ImageGalleryItem.CAPTION', 'Caption')));
         
         // Create image
-        $imageField = new UploadField('Image');
+        $imageField = new UploadField(Image::class);
         $imageField->getValidator()->setAllowedExtensions(File::config()->app_categories['image']);
         $fields->addFieldToTab('Root.Main', $imageField);
 

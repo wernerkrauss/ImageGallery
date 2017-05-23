@@ -1,5 +1,7 @@
 <?php
 
+use TractorCow\ImageGallery\Pages\ImageGalleryPage;
+
 abstract class ImageGalleryUI {
 
 	static $link_to_demo;
@@ -16,7 +18,7 @@ abstract class ImageGalleryUI {
 		$this->ImageGalleryPage = $page;
 	}
 
-	public function updateItems(DataObjectSet $items) {
+	public function updateItems( $items) {
 		return $items;
 	}
 

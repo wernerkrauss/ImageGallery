@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\View\Requirements;
+
 class LightboxAlt extends ImageGalleryUI
 {
 	static $link_to_demo = "http://www.balupton.com/sandbox/jquery_lightbox_bal/demo/";

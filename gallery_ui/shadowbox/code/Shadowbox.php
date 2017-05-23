@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\View\Requirements;
+
 class Shadowbox extends ImageGalleryUI
 {
 	static $label = "Shadowbox";

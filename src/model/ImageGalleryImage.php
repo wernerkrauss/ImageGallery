@@ -2,8 +2,10 @@
 
 namespace TractorCow\ImageGallery\Model;
 
-use DataExtension;
+
 use GD;
+use SilverStripe\ORM\DataExtension;
+
 
 
 /**

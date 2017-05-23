@@ -2,11 +2,18 @@
 
 namespace TractorCow\ImageGallery\Tasks;
 
-use BuildTask;
-use DB;
-use DataObject;
-use Debug;
-use ImageGalleryItem;
+
+
+
+
+
+use SilverStripe\ORM\DB;
+use TractorCow\ImageGallery\Pages\ImageGalleryPage;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\Dev\Debug;
+use TractorCow\ImageGallery\Model\ImageGalleryItem;
+use SilverStripe\Dev\BuildTask;
+
 
 
 /**
@@ -26,7 +33,7 @@ class UpdateImageGalleryTask extends BuildTask {
 		DB::query('UPDATE "File" SET "File"."ClassName" = \'Image\' WHERE "File"."ClassName" = \'ImageGalleryImage\'');
 
 		// check that galleries exist
-		$galleries = DataObject::get('ImageGalleryPage');
+		$galleries = DataObject::get(ImageGalleryPage::class);
 		if (!$galleries || $galleries->count() === 0) {
 			user_error('No image gallery pages found', E_USER_ERROR);
 			return;

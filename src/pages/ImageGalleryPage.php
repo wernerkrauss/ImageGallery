@@ -3,26 +3,49 @@
 namespace TractorCow\ImageGallery\Pages;
 
 use Page;
-use Versioned;
-use Folder;
-use ClassInfo;
-use Tab;
-use FieldGroup;
-use NumericField;
-use CheckboxField;
-use OptionsetField;
-use GridFieldConfig_RecordEditor;
-use GridFieldBulkManager;
+
+
+
+
+
+
+
+
+
+
 use GridFieldSortableRows;
-use GridField;
-use HeaderField;
-use Controller;
-use DataObject;
-use Requirements;
-use Object;
-use ArrayList;
-use Page_Controller;
-use Convert;
+
+
+
+
+
+
+
+
+
+use SilverStripe\Assets\Folder;
+use TractorCow\ImageGallery\Model\ImageGalleryAlbum;
+use TractorCow\ImageGallery\Model\ImageGalleryItem;
+use SilverStripe\Versioned\Versioned;
+use SilverStripe\Core\ClassInfo;
+use SilverStripe\Forms\Tab;
+use SilverStripe\Forms\NumericField;
+use SilverStripe\Forms\FieldGroup;
+use SilverStripe\Forms\CheckboxField;
+use SilverStripe\Forms\OptionsetField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use Colymba\BulkManager\BulkManager;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\HeaderField;
+use SilverStripe\Control\Controller;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\View\Requirements;
+use SilverStripe\Core\Object;
+use SilverStripe\ORM\ArrayList;
+use TractorCow\ImageGallery\Pages\ImageGalleryPage;
+use SilverStripe\Core\Convert;
+use PageController;
+
 
 
 class ImageGalleryPage extends Page
@@ -46,7 +69,7 @@ class ImageGalleryPage extends Page
     );
 
     private static $has_one = array(
-        'RootFolder' => 'Folder'
+        'RootFolder' => Folder::class
     );
 
     private static $defaults = array(
@@ -63,21 +86,21 @@ class ImageGalleryPage extends Page
     );
 
     private static $has_many = array(
-        'Albums' => 'ImageGalleryAlbum',
-        'GalleryItems' => 'ImageGalleryItem'
+        'Albums' => ImageGalleryAlbum::class,
+        'GalleryItems' => ImageGalleryItem::class
     );
 
     /**
      * @config
      * @var string
      */
-    private static $item_class = "ImageGalleryItem";
+    private static $item_class = ImageGalleryItem::class;
 
     /**
      * @config
      * @var string
      */
-    private static $album_class = "ImageGalleryAlbum";
+    private static $album_class = ImageGalleryAlbum::class;
 
     public $UI;
 
@@ -172,8 +195,8 @@ class ImageGalleryPage extends Page
             $albumConfig = GridFieldConfig_RecordEditor::create();
             // Enable bulk image loading if necessary module is installed
             // @see composer.json/suggests
-            if (class_exists('GridFieldBulkManager')) {
-                $albumConfig->addComponent(new GridFieldBulkManager());
+            if (class_exists(BulkManager::class)) {
+                $albumConfig->addComponent(new BulkManager());
             }
             // Enable album sorting if necessary module is installed
             // @see composer.json/suggests
@@ -335,7 +358,7 @@ class ImageGalleryPage extends Page
     }
 }
 
-class ImageGalleryPage_Controller extends Page_Controller
+class ImageGalleryPage_Controller extends PageController
 {
     
     private static $allowed_actions = array('album');
@@ -351,7 +374,7 @@ class ImageGalleryPage_Controller extends Page_Controller
         if ($this->SingleAlbumView()) {
             return $this->renderWith(array($this->getModelClass() . '_album', 'ImageGalleryPage_album', 'Page'));
         } else {
-            return $this->renderWith(array($this->getModelClass(), 'ImageGalleryPage', 'Page'));
+            return $this->renderWith(array($this->getModelClass(), ImageGalleryPage::class, 'Page'));
         }
     }
 

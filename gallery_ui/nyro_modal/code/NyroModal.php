@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\View\Requirements;
+
 class NyroModal extends ImageGalleryUI
 {
 	static $link_to_demo = "http://nyromodal.nyrodev.com/";

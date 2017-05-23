@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\View\Requirements;
+
 class FancyBox extends ImageGalleryUI {
 
 	static $link_to_demo = "http://fancybox.net/example";

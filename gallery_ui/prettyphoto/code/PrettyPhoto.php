@@ -1,5 +1,7 @@
 <?php
 
+use SilverStripe\View\Requirements;
+
 class PrettyPhoto extends ImageGalleryUI
 {
 	static $link_to_demo = "http://www.no-margin-for-errors.com/projects/prettyPhoto-jquery-lightbox-clone/#image-gallery-demo";

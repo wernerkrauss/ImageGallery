@@ -1,4 +1,6 @@
 <?php 
+use SilverStripe\View\Requirements;
+
 
 class Lightbox extends ImageGalleryUI
 {

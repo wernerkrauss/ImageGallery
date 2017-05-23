@@ -2,10 +2,16 @@
 
 namespace TractorCow\ImageGallery\Extensions;
 
-use SiteTreeExtension;
-use DataObject;
-use Requirements;
-use ArrayList;
+
+
+
+
+use TractorCow\ImageGallery\Pages\ImageGalleryPage;
+use SilverStripe\ORM\DataObject;
+use SilverStripe\View\Requirements;
+use SilverStripe\ORM\ArrayList;
+use SilverStripe\CMS\Model\SiteTreeExtension;
+
 
 
 /**
@@ -16,7 +22,7 @@ class ImageGallerySiteTree extends SiteTreeExtension
 
     public function getGalleryFor($urlSegment)
     {
-        $galleries = DataObject::get("ImageGalleryPage");
+        $galleries = DataObject::get(ImageGalleryPage::class);
         if (!empty($urlSegment)) {
             $galleries = $galleries->filter(array('URLSegment' => $urlSegment));
         }
