@@ -1,0 +1,69 @@
+en:
+  AlbumList:
+    IMAGECOUNT: "%s photos"
+  AlbumList.ss:
+    PHOTOS: "photos"
+  ImageGalleryAlbum:
+    ALBUMNAME: "Album Name"
+    ALBUMTITLE: "Album Title"
+    COVERIMAGE: "Cover Image"
+    DESCRIPTION: "Description"
+    # 50
+    PLURALNAME: "Image Gallery Albums"
+    # 50
+    SINGULARNAME: "Image Gallery Album"
+  ImageGalleryItem:
+    ALBUM: "Album"
+    CAPTION: "Caption"
+    # 50
+    PLURALNAME: "Image Gallery Items"
+    # 50
+    SINGULARNAME: "Image Gallery Item"
+  ImageGalleryManager:
+    CHOOSEALBUM: "Choose an album"
+    DATAOBJECTMANAGER: "ImageGallery requires the DataObjectManager module."
+    ERROR: "Error"
+    ROTATECLOCKWISE: "Rotate clockwise"
+    ROTATECOUNTERCLOCKWISE: "Rotate counter-clockwise"
+    ROTATING: "Rotating"
+    UPLOADFROMPC: "Upload from my computer"
+    UPLOADIMAGES: "Upload Images"
+    UPLOADIMAGESTO: "Upload Images to \"%s\""
+  ImageGalleryPage:
+    ALBUM: "Album"
+    ALBUMCOVERIMAGES: "Album cover images"
+    ALBUMS: "Albums"
+    ALBUMSNOTSAVED: "You may add albums to your gallery once you have saved the page for the first time."
+    ANALBUM: "an Album"
+    CONFIGURATION: "Configuration"
+    CROPTOSQUARE: "Crop thumbnails to square"
+    HEIGHT: "Height"
+    IMAGES: "Images"
+    IMAGESPERPAGE: "Number of images per page"
+    MAXFILES: "Max files allowed in upload queue"
+    MEDIUMSIZE: "Medium size (pixels)"
+    NOALBUMS: "You have no albums. Click on the Albums tab to create at least one album before adding photos."
+    NORMALHEIGHT: "Normal height (pixels)"
+    NORMALSIZE: "Normal width (pixels)"
+    PHOTOS: "Photos"
+    PHOTOSNOTSAVED: "You may add photos to your gallery once you have saved the page for the first time."
+    # 50
+    PLURALNAME: "Image Gallery Pags"
+    POPUPSTYLE: "Popup style"
+    # 50
+    SINGULARNAME: "Image Gallery Page"
+    THUMBNAILHEIGHT: "Thumbnail height (pixels)"
+    TO: "to"
+    VIEWDEMO: "view demo"
+    WIDTH: "Width"
+  ImageGalleryPage.ss:
+    ALBUMSINGALLERY: "Albums in %s"
+  ImageGalleryPage_album.ss:
+    GOTOALBUM: "Go to the %s album"
+    NEXT: "Next"
+    NEXTALBUM: "Next Album"
+    PREVIOUS: "Previous"
+    PREVIOUSALBUM: "Previous Album"
+    VIEWNEXTPAGE: "View the next page"
+    VIEWPAGENUMBER: "View page number %s"
+    VIEWPREVIOUSPAGE: "View the previous page"
