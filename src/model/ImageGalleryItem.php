@@ -73,7 +73,7 @@ class ImageGalleryItem extends DataObject
         $fields = new FieldList(new TabSet('Root'));
         
         // Details
-        $fields->addFieldToTab('Root.Main', new TextareaField('Caption', _t('ImageGalleryItem.CAPTION', 'Caption')));
+        $fields->addFieldToTab('Root.Main', new TextareaField('Caption', _t('TractorCow\\ImageGallery\\Model\\ImageGalleryItem.CAPTION', 'Caption')));
         
         // Create image
         $imageField = new UploadField(Image::class);

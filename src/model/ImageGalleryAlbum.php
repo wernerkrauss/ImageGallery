@@ -77,11 +77,11 @@ class ImageGalleryAlbum extends DataObject
 		{$fields = new FieldList(new TabSet('Root'));
 
 		// Details
-		$thumbnailField = new UploadField('CoverImage',_t('ImageGalleryAlbum.COVERIMAGE','Cover Image'));
+		$thumbnailField = new UploadField('CoverImage',_t('TractorCow\\ImageGallery\\Model\\ImageGalleryAlbum.COVERIMAGE','Cover Image'));
 		$thumbnailField->getValidator()->setAllowedExtensions(File::config()->app_categories['image']);
 		$fields->addFieldsToTab('Root.Main', array(
-			new TextField('AlbumName', _t('ImageGalleryAlbum.ALBUMTITLE','Album Title'), null, 255),
-			new TextareaField('Description', _t('ImageGalleryAlbum.DESCRIPTION','Description')),
+			new TextField('AlbumName', _t('TractorCow\\ImageGallery\\Model\\ImageGalleryAlbum.ALBUMTITLE','Album Title'), null, 255),
+			new TextareaField('Description', _t('TractorCow\\ImageGallery\\Model\\ImageGalleryAlbum.DESCRIPTION','Description')),
 			$thumbnailField
 		));
 

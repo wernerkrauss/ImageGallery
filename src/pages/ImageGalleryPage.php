@@ -162,7 +162,7 @@ class ImageGalleryPage extends Page
             $uiLabel = $ui::$label;
             $demoURL = $ui::$link_to_demo;
             $demoLink = !empty($demoURL)
-                    ? sprintf('<a href="%s" target="_blank">%s</a>', $demoURL, _t('ImageGalleryPage.VIEWDEMO', 'view demo'))
+                    ? sprintf('<a href="%s" target="_blank">%s</a>', $demoURL, _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.VIEWDEMO', 'view demo'))
                     : "";
             $popupMap[$ui] = "$uiLabel $demoLink";
         }
@@ -171,26 +171,26 @@ class ImageGalleryPage extends Page
         
         // Build configuration fields
         $fields->addFieldToTab('Root', $configTab = new Tab('Configuration'));
-        $configTab->setTitle(_t('ImageGalleryPage.CONFIGURATION', 'Configuration'));
+        $configTab->setTitle(_t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.CONFIGURATION', 'Configuration'));
         $fields->addFieldsToTab("Root.Configuration", array(
             $coverImages = new FieldGroup(
-                new NumericField('CoverImageWidth', _t('ImageGalleryPage.WIDTH', 'Width')),
-                new NumericField('CoverImageHeight', _t('ImageGalleryPage.HEIGHT', 'Height'))
+                new NumericField('CoverImageWidth', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.WIDTH', 'Width')),
+                new NumericField('CoverImageHeight', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.HEIGHT', 'Height'))
             ),
-            new NumericField('ThumbnailSize', _t('ImageGalleryPage.THUMBNAILHEIGHT', 'Thumbnail height (pixels)')),
-            new CheckboxField('Square', _t('ImageGalleryPage.CROPTOSQUARE', 'Crop thumbnails to square')),
-            new NumericField('MediumSize', _t('ImageGalleryPage.MEDIUMSIZE', 'Medium size (pixels)')),
-            new NumericField('NormalSize', _t('ImageGalleryPage.NORMALSIZE', 'Normal width (pixels)')),
-            new NumericField('NormalHeight', _t('ImageGalleryPage.NORMALHEIGHT', 'Normal height (pixels)')),
-            new NumericField('MediaPerPage', _t('ImageGalleryPage.IMAGESPERPAGE', 'Number of images per page')),
-            new OptionsetField('GalleryUI', _t('ImageGalleryPage.POPUPSTYLE', 'Popup style'), $popupMap),
-            new NumericField('UploadLimit', _t('ImageGalleryPage.MAXFILES', 'Max files allowed in upload queue'))
+            new NumericField('ThumbnailSize', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.THUMBNAILHEIGHT', 'Thumbnail height (pixels)')),
+            new CheckboxField('Square', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.CROPTOSQUARE', 'Crop thumbnails to square')),
+            new NumericField('MediumSize', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MEDIUMSIZE', 'Medium size (pixels)')),
+            new NumericField('NormalSize', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALSIZE', 'Normal width (pixels)')),
+            new NumericField('NormalHeight', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALHEIGHT', 'Normal height (pixels)')),
+            new NumericField('MediaPerPage', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.IMAGESPERPAGE', 'Number of images per page')),
+            new OptionsetField('GalleryUI', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.POPUPSTYLE', 'Popup style'), $popupMap),
+            new NumericField('UploadLimit', _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MAXFILES', 'Max files allowed in upload queue'))
         ));
-        $coverImages->setTitle(_t('ImageGalleryPage.ALBUMCOVERIMAGES', 'Album cover images'));
+        $coverImages->setTitle(_t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMCOVERIMAGES', 'Album cover images'));
 
         // Build albums tab
         $fields->addFieldToTab('Root', $albumTab = new Tab('Albums'));
-        $albumTab->setTitle(_t('ImageGalleryPage.ALBUMS', 'Albums'));
+        $albumTab->setTitle(_t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMS', 'Albums'));
         if ($rootFolder = $this->RootFolder()) {
             $albumConfig = GridFieldConfig_RecordEditor::create();
             // Enable bulk image loading if necessary module is installed
@@ -209,7 +209,7 @@ class ImageGalleryPage extends Page
             $fields->addFieldToTab(
                 "Root.Albums",
                 new HeaderField(
-                    _t("ImageGalleryPage.ALBUMSNOTSAVED", "You may add albums to your gallery once you have saved the page for the first time."),
+                    _t("TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMSNOTSAVED", "You may add albums to your gallery once you have saved the page for the first time."),
                     $headingLevel = "3"
                 )
             );
