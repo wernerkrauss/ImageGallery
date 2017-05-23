@@ -29,6 +29,8 @@ use TractorCow\ImageGallery\Model\ImageGalleryItem;
 
 class ImageGalleryPage extends Page
 {
+    private static $table_name = 'ImageGalleryPage';
+
 
     protected $currentAlbum = null;
 

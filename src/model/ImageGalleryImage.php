@@ -13,6 +13,8 @@ use SilverStripe\ORM\DataExtension;
 class ImageGalleryImage extends DataExtension
 {
 
+    private static $table_name = 'ImageGalleryImage';
+
     public function generateRotateClockwise(GD $gd)
     {
         return $gd->rotate(90);

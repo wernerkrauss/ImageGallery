@@ -18,6 +18,8 @@ use TractorCow\ImageGallery\Pages\ImageGalleryPage;
 class ImageGalleryItem extends DataObject
 {
 
+    private static $table_name = 'ImageGalleryItem';
+
     /**
      * User interface for gallery
      *

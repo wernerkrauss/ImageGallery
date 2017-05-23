@@ -25,6 +25,8 @@ use TractorCow\ImageGallery\Pages\ImageGalleryPage;
 class ImageGalleryAlbum extends DataObject
 {
 
+    private static $table_name = 'ImageGalleryAlbum';
+
     private static $db = [
         'AlbumName' => 'Varchar(255)',
         'Description' => 'Text',
