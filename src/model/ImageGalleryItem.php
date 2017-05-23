@@ -15,6 +15,18 @@ use SilverStripe\Security\Permission;
 use TractorCow\ImageGallery\Pages\ImageGalleryPage;
 
 
+/**
+ * Class \TractorCow\ImageGallery\Model\ImageGalleryItem
+ *
+ * @property string $Caption
+ * @property int $SortOrder
+ * @property int $ImageGalleryPageID
+ * @property int $AlbumID
+ * @property int $ImageID
+ * @method \TractorCow\ImageGallery\Pages\ImageGalleryPage ImageGalleryPage()
+ * @method \TractorCow\ImageGallery\Model\ImageGalleryAlbum Album()
+ * @method \SilverStripe\Assets\Image Image()
+ */
 class ImageGalleryItem extends DataObject
 {
 

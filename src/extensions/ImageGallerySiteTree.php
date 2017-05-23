@@ -11,7 +11,10 @@ use TractorCow\ImageGallery\Pages\ImageGalleryPage;
 
 
 /**
+ * Class \TractorCow\ImageGallery\Extensions\ImageGallerySiteTree
+ *
  * @see SiteTree
+ * @property \SilverStripe\CMS\Model\SiteTree|\TractorCow\ImageGallery\Extensions\ImageGallerySiteTree $owner
  */
 class ImageGallerySiteTree extends SiteTreeExtension
 {

@@ -22,6 +22,21 @@ use SilverStripe\View\Parsers\URLSegmentFilter;
 use TractorCow\ImageGallery\Pages\ImageGalleryPage;
 
 
+/**
+ * Class \TractorCow\ImageGallery\Model\ImageGalleryAlbum
+ *
+ * @property string $AlbumName
+ * @property string $Description
+ * @property int $SortOrder
+ * @property string $URLSegment
+ * @property int $CoverImageID
+ * @property int $ImageGalleryPageID
+ * @property int $FolderID
+ * @method \SilverStripe\Assets\Image CoverImage()
+ * @method \TractorCow\ImageGallery\Pages\ImageGalleryPage ImageGalleryPage()
+ * @method \SilverStripe\Assets\Folder Folder()
+ * @method \SilverStripe\ORM\DataList|\TractorCow\ImageGallery\Model\ImageGalleryItem[] GalleryItems()
+ */
 class ImageGalleryAlbum extends DataObject
 {
 

@@ -8,7 +8,10 @@ use SilverStripe\ORM\DataExtension;
 
 
 /**
+ * Class \TractorCow\ImageGallery\Model\ImageGalleryImage
+ *
  * @see Image
+ * @property \SilverStripe\Assets\Image|\TractorCow\ImageGallery\Model\ImageGalleryImage $owner
  */
 class ImageGalleryImage extends DataExtension
 {

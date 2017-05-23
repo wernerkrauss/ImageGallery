@@ -27,6 +27,23 @@ use TractorCow\ImageGallery\Model\ImageGalleryAlbum;
 use TractorCow\ImageGallery\Model\ImageGalleryItem;
 
 
+/**
+ * Class \TractorCow\ImageGallery\Pages\ImageGalleryPage
+ *
+ * @property string $GalleryUI
+ * @property int $CoverImageWidth
+ * @property int $CoverImageHeight
+ * @property int $ThumbnailSize
+ * @property int $MediumSize
+ * @property boolean $Square
+ * @property int $NormalSize
+ * @property int $NormalHeight
+ * @property int $MediaPerPage
+ * @property int $UploadLimit
+ * @property int $RootFolderID
+ * @method \SilverStripe\Assets\Folder RootFolder()
+ * @method \SilverStripe\ORM\DataList|\TractorCow\ImageGallery\Model\ImageGalleryAlbum[] Albums()
+ */
 class ImageGalleryPage extends Page
 {
     private static $table_name = 'ImageGalleryPage';
@@ -352,6 +369,13 @@ class ImageGalleryPage extends Page
     }
 }
 
+/**
+ * Class \TractorCow\ImageGallery\Pages\ImageGalleryPage_Controller
+ *
+ * @property \TractorCow\ImageGallery\Pages\ImageGalleryPage dataRecord
+ * @method \TractorCow\ImageGallery\Pages\ImageGalleryPage data()
+ * @mixin \TractorCow\ImageGallery\Pages\ImageGalleryPage
+ */
 class ImageGalleryPage_Controller extends PageController
 {
 
