@@ -4,5 +4,5 @@ mappings:
   ImageGalleryItem: TractorCow\ImageGallery\Model\ImageGalleryItem
   ImageGallerySiteTree: TractorCow\ImageGallery\Extensions\ImageGallerySiteTree
   ImageGalleryPage: TractorCow\ImageGallery\Pages\ImageGalleryPage
-  ImageGalleryPage_Controller: TractorCow\ImageGallery\Pages\ImageGalleryPage_Controller
+  ImageGalleryPage_Controller: TractorCow\ImageGallery\Pages\ImageGalleryPageController
   UpdateImageGalleryTask: TractorCow\ImageGallery\Tasks\UpdateImageGalleryTask
