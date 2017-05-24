@@ -142,7 +142,7 @@ class ImageGalleryAlbum extends DataObject
     public function FormattedCoverImage()
     {
         $page = $this->ImageGalleryPage();
-        return $this->CoverImage()->CroppedImage(
+        return $this->CoverImage()->Fill(
             $page->CoverImageWidth,
             $page->CoverImageHeight
         );

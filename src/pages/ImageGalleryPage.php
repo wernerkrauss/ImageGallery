@@ -315,7 +315,7 @@ class ImageGalleryPage extends Page
 
         // Check items and UI are ready
         if (empty($items)) {
-            $items = new ArrayList($this->Items($limit)->toArray());
+            $items = $this->Items($limit);
         }
         $this->includeUI();
 
@@ -323,14 +323,16 @@ class ImageGalleryPage extends Page
         foreach ($items as $item) {
 
             // Thumbnail details
-            $thumbImg = $item->Thumbnail();
-            $item->ThumbnailURL = $thumbImg->URL;
-            $item->ThumbnailWidth = $thumbImg->getWidth();
-            $item->ThumbnailHeight = $thumbImg->getHeight();
+            if ($thumbImg = $item->Thumbnail()) {
+                $item->ThumbnailURL = $thumbImg->URL;
+                $item->ThumbnailWidth = $thumbImg->getWidth();
+                $item->ThumbnailHeight = $thumbImg->getHeight();
+            }
 
             // Normal details
-            $normalImg = $item->Large();
-            $item->ViewLink = $normalImg->URL;
+            if($normalImg = $item->Large()) {
+                $item->ViewLink = $normalImg->URL;
+            }
 
             // Propegate UI
             $item->setUI($this->UI);
@@ -361,6 +363,8 @@ class ImageGalleryPage extends Page
 
     public function GalleryLayout()
     {
+        $this->includeUI();
+
         return $this->customise([
             'GalleryItems' => $this->GalleryItems(),
             'PreviousGalleryItems' => $this->PreviousGalleryItems(),
@@ -374,7 +378,7 @@ class ImageGalleryPage extends Page
  *
  * @property \TractorCow\ImageGallery\Pages\ImageGalleryPage dataRecord
  * @method \TractorCow\ImageGallery\Pages\ImageGalleryPage data()
- * @mixin \TractorCow\ImageGallery\Pages\ImageGalleryPage
+ * @mixin \TractorCow\ImageGallery\Pages\ImageGalleryPage dataRecord
  */
 class ImageGalleryPage_Controller extends PageController
 {

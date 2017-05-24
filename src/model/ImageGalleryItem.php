@@ -7,6 +7,7 @@ use ImageGalleryUI;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Image;
+use SilverStripe\Assets\Image_Backend;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextareaField;
@@ -96,11 +97,14 @@ class ImageGalleryItem extends DataObject
         $image = $this->Image();
         if (!$image) {
             return null;
-        } elseif ($page->Square) {
-            return $image->CroppedImage($page->ThumbnailSize, $page->ThumbnailSize);
-        } else {
-            return $image->SetHeight($page->ThumbnailSize);
         }
+
+        if ($page->Square) {
+            return $image->Fill($page->ThumbnailSize, $page->ThumbnailSize);
+        }
+
+        return $image->ScaleHeight($page->ThumbnailSize);
+
     }
 
     public function Medium()
@@ -109,9 +113,9 @@ class ImageGalleryItem extends DataObject
         $image = $this->Image();
         if (!$image) {
             return null;
-        } else {
-            return $image->SetSizeRatio($page->MediumSize, $page->MediumSize);
         }
+
+        return $image->Fit($page->MediumSize, $page->MediumSize);
     }
 
     public function Large()
@@ -120,14 +124,17 @@ class ImageGalleryItem extends DataObject
         $image = $this->Image();
         if (!$image) {
             return null;
-        } elseif ($image->Landscape()) {
-            return $image->SetWidth($this->ImageGalleryPage()->NormalSize);
-        } else {
-            $height = $page->NormalHeight > 0
-                ? $page->NormalHeight
-                : $page->NormalSize;
-            return $image->SetHeight($height);
         }
+
+        if ($image->getOrientation() === Image_Backend::ORIENTATION_LANDSCAPE) {
+            return $image->ScaleWidth($this->ImageGalleryPage()->NormalSize);
+        }
+
+        $height = $page->NormalHeight > 0
+            ? $page->NormalHeight
+            : $page->NormalSize;
+        return $image->ScaleHeight($height);
+
     }
 
     public function setUI(ImageGalleryUI $ui)
