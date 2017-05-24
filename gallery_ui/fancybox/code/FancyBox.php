@@ -4,11 +4,11 @@ use SilverStripe\View\Requirements;
 
 class FancyBox extends ImageGalleryUI {
 
-	static $link_to_demo = "http://fancybox.net/example";
+	public static $link_to_demo = "http://fancybox.net/example";
 
-	static $label = "Fancy Box";
+	public static $label = "Fancy Box";
 
-	public $item_template = "FancyBox_item";
+	public $item_template = "TractorCow\\ImageGallery\\Items\\FancyBox_item";
 
 	public function initialize() {
 		Requirements::javascript('silverstripe-admin/thirdparty/jquery/jquery.js');

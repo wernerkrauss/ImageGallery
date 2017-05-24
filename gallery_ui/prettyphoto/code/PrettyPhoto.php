@@ -4,9 +4,9 @@ use SilverStripe\View\Requirements;
 
 class PrettyPhoto extends ImageGalleryUI
 {
-	static $link_to_demo = "http://www.no-margin-for-errors.com/projects/prettyPhoto-jquery-lightbox-clone/#image-gallery-demo";
-	static $label = "Pretty Photo";
-	public $item_template = "PrettyPhoto_item";
+	public static $link_to_demo = "http://www.no-margin-for-errors.com/projects/prettyPhoto-jquery-lightbox-clone/#image-gallery-demo";
+	public static $label = "Pretty Photo";
+	public $item_template = "TractorCow\\ImageGallery\\Items\\PrettyPhoto_item";
 
 	public function initialize()
 	{

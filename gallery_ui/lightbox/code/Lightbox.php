@@ -4,9 +4,9 @@ use SilverStripe\View\Requirements;
 
 class Lightbox extends ImageGalleryUI
 {
-	static $link_to_demo = "http://leandrovieira.com/projects/jquery/lightbox/";
-	static $label = "LightBox";
-	public $item_template = "Lightbox_item";
+	public static $link_to_demo = "http://leandrovieira.com/projects/jquery/lightbox/";
+	public static $label = "LightBox";
+	public $item_template = "TractorCow\\ImageGallery\\Items\\Lightbox_item";
 
 	public function initialize()
 	{

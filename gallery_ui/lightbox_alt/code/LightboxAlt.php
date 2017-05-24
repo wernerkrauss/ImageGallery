@@ -4,9 +4,9 @@ use SilverStripe\View\Requirements;
 
 class LightboxAlt extends ImageGalleryUI
 {
-	static $link_to_demo = "http://www.balupton.com/sandbox/jquery_lightbox_bal/demo/";
-	static $label = "LightBox (Balupton edition)";
-	public $item_template = "LightboxAlt_item";
+	public static $link_to_demo = "http://www.balupton.com/sandbox/jquery_lightbox_bal/demo/";
+	public static $label = "LightBox (Balupton edition)";
+	public $item_template = "TractorCow\\ImageGallery\\Items\\LightboxAlt_item";
 
 	public function initialize()
 	{

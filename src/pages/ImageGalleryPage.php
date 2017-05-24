@@ -315,7 +315,7 @@ class ImageGalleryPage extends Page
 
         // Check items and UI are ready
         if (empty($items)) {
-            $items = $this->Items($limit);
+            $items = ArrayList::create($this->Items($limit)->toArray());
         }
         $this->includeUI();
 

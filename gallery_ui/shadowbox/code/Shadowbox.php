@@ -4,9 +4,9 @@ use SilverStripe\View\Requirements;
 
 class Shadowbox extends ImageGalleryUI
 {
-	static $label = "Shadowbox";
-	static $link_to_demo = "http://www.shadowbox-js.com/";
-	public $item_template = "Shadowbox_item";
+	public static $label = "Shadowbox";
+	public static $link_to_demo = "http://www.shadowbox-js.com/";
+	public $item_template = "TractorCow\\ImageGallery\\Items\\Shadowbox_item";
 
 
 	public function initialize()
