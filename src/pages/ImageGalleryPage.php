@@ -21,6 +21,8 @@ use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\Tab;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\ORM\PaginatedList;
+use SilverStripe\ORM\SS_List;
 use SilverStripe\Versioned\Versioned;
 use SilverStripe\View\Requirements;
 use TractorCow\ImageGallery\Model\ImageGalleryAlbum;
@@ -293,16 +295,6 @@ class ImageGalleryPage extends Page
 
     protected function Items($limit = null)
     {
-        if ($limit === null && $this->MediaPerPage) {
-            if (isset($_REQUEST['start']) && is_numeric($_REQUEST['start'])) {
-                $start = $_REQUEST['start'];
-            } else {
-                $start = 0;
-            }
-
-            $limit = "{$start},{$this->MediaPerPage}";
-        }
-
         $items = DataObject::get($this->ItemClass)->sort('"SortOrder" ASC')->limit($limit);
         if ($album = $this->CurrentAlbum()) {
             $items = $items->filter('AlbumID', $album->ID);
@@ -310,34 +302,23 @@ class ImageGalleryPage extends Page
         return $items;
     }
 
-    public function GalleryItems($limit = null, $items = null)
+    public function GalleryItems($limit = null, SS_List $items = null)
     {
 
         // Check items and UI are ready
         if (empty($items)) {
-            $items = ArrayList::create($this->Items($limit)->toArray());
+            $items = $this->Items($limit);
         }
+
+        $items = PaginatedList::create($items, Controller::curr()->getRequest());
+
+        if ($this->MediaPerPage) {
+            $items = $items->setPageLength($this->MediaPerPage);
+        }
+
         $this->includeUI();
 
-        // Prepare each item
-        foreach ($items as $item) {
-
-            // Thumbnail details
-            if ($thumbImg = $item->Thumbnail()) {
-                $item->ThumbnailURL = $thumbImg->URL;
-                $item->ThumbnailWidth = $thumbImg->getWidth();
-                $item->ThumbnailHeight = $thumbImg->getHeight();
-            }
-
-            // Normal details
-            if($normalImg = $item->Large()) {
-                $item->ViewLink = $normalImg->URL;
-            }
-
-            // Propegate UI
-            $item->setUI($this->UI);
-        }
-        return $this->UI->updateItems($items);
+        return $items;
     }
 
     public function PreviousGalleryItems()

@@ -27,7 +27,6 @@ $GalleryLayout
 	</ul>
 </div>
 <% with $GalleryItems %>
-    $Count Pages...
 	<% if $MoreThanOnePage %>
 		<ul id="pagination-imagegallery">
 			<% if $NotFirstPage %>

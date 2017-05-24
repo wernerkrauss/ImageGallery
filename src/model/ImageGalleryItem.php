@@ -8,6 +8,7 @@ use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Image_Backend;
+use SilverStripe\Core\Object;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextareaField;
@@ -142,8 +143,15 @@ class ImageGalleryItem extends DataObject
         $this->UI = $ui;
     }
 
+    /**
+     * @todo: make UI a global config setting
+     *
+     * @return bool|\SilverStripe\ORM\FieldType\DBHTMLText
+     */
     public function GalleryItem()
     {
+        $this->UI = Object::create($this->ImageGalleryPage()->GalleryUI());
+
         if ($this->UI) {
             return $this->renderWith([$this->UI->item_template]);
         }
