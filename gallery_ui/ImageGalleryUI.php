@@ -2,7 +2,7 @@
 
 abstract class ImageGalleryUI {
 
-	static $link_to_demo;
+	public static $link_to_demo;
 
 	public $layout_template = "GalleryUI_layout";
 
@@ -16,7 +16,11 @@ abstract class ImageGalleryUI {
 		$this->ImageGalleryPage = $page;
 	}
 
-	public function updateItems(DataObjectSet $items) {
+    /**
+     * @param SS_List $items
+     * @return SS_List
+     */
+	public function updateItems(SS_List $items) {
 		return $items;
 	}
 
