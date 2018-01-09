@@ -84,16 +84,16 @@ class ImageGalleryPage extends Page {
 		parent::onBeforeDelete();
 	}
 
-	function checkFolder() {
-		// Ensure root folder exists, but avoid saving folders like "new-image-gallery-page"
-		if ($this->exists()
-			&& !(($folder = $this->RootFolder()) && $folder->exists())
-			&& $this->URLSegment
-		) {
-			$folder = Folder::find_or_make("image-gallery/{$this->URLSegment}");
-			$this->RootFolderID = $folder->ID;
-		}
-	}
+//	function checkFolder() {
+//		// Ensure root folder exists, but avoid saving folders like "new-image-gallery-page"
+//		if ($this->exists()
+//			&& !(($folder = $this->RootFolder()) && $folder->exists())
+//			&& $this->URLSegment
+//		) {
+//			$folder = Folder::find_or_make("image-gallery/{$this->URLSegment}");
+//			$this->RootFolderID = $folder->ID;
+//		}
+//	}
 
 	public function getCMSFields() {
 		
@@ -157,6 +157,8 @@ class ImageGalleryPage extends Page {
 				)
 			);
 		}
+
+		$this->extend('updateCMSFields', $fields);
 		
 		return $fields;
 	}

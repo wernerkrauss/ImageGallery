@@ -67,9 +67,21 @@ class ImageGalleryAlbum extends DataObject {
 			$galleryConfig->addComponent(new GridFieldSortableRows('SortOrder'));
 		}
 
+		//use show all paginator instead
+		if(class_exists('GridFieldPaginatorWithShowAll')) {
+			$galleryConfig->removeComponentsByType('GridFieldPaginator');
+			$galleryConfig->addComponent(new GridFieldPaginatorWithShowAll());
+		}
+
+		if(class_exists('GridFieldGalleryTheme')) {
+			$galleryConfig->addComponent(new GridFieldGalleryTheme('Image'));
+		}
+
 		$galleryField = new GridField('GalleryItems', 'Gallery Items', $this->GalleryItems(), $galleryConfig);
 		$fields->addFieldToTab('Root.Images', $galleryField);
-		
+
+		$this->extend('updateCMSFields', $fields);
+
 		return $fields;
 	}
 

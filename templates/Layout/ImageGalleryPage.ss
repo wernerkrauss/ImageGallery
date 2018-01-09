@@ -1,12 +1,12 @@
 <div id="primaryContent">
 	<div class="innerpad">
 		<div class="typography">
-			<% if Albums %>
+			<% if $Albums %>
 				<div id="Sidebar" class="typography">
-					<div class="sidebarBox">
+					<div class="sidebar__box">
 						<h3><% sprintf(_t('ALBUMSINGALLERY','Albums in %s'),$Title) %></h3>
 						<ul id="Menu2">
-						<% loop Albums %>
+						<% loop $Albums %>
 							<li class="$LinkingMode"><a class="$LinkingMode" href="$Link" title="$AlbumName">$AlbumName</a></li>
 						<% end_loop %>
 						</ul>
