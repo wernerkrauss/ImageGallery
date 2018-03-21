@@ -2,12 +2,12 @@
 
 namespace TractorCow\ImageGallery\Model;
 
-
 use ImageGalleryUI;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Image_Backend;
+use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Object;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TabSet;
@@ -15,7 +15,6 @@ use SilverStripe\Forms\TextareaField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
 use TractorCow\ImageGallery\Pages\ImageGalleryPage;
-
 
 /**
  * Class \TractorCow\ImageGallery\Model\ImageGalleryItem
@@ -31,7 +30,6 @@ use TractorCow\ImageGallery\Pages\ImageGalleryPage;
  */
 class ImageGalleryItem extends DataObject
 {
-
     private static $table_name = 'ImageGalleryItem';
 
     /**
@@ -81,8 +79,10 @@ class ImageGalleryItem extends DataObject
         $fields = new FieldList(new TabSet('Root'));
 
         // Details
-        $fields->addFieldToTab('Root.Main',
-            new TextareaField('Caption', _t('TractorCow\\ImageGallery\\Model\\ImageGalleryItem.CAPTION', 'Caption')));
+        $fields->addFieldToTab(
+            'Root.Main',
+            new TextareaField('Caption', _t('TractorCow\\ImageGallery\\Model\\ImageGalleryItem.CAPTION', 'Caption'))
+        );
 
         // Create image
         $imageField = new UploadField(Image::class);
@@ -105,7 +105,6 @@ class ImageGalleryItem extends DataObject
         }
 
         return $image->ScaleHeight($page->ThumbnailSize);
-
     }
 
     public function Medium()
@@ -135,7 +134,6 @@ class ImageGalleryItem extends DataObject
             ? $page->NormalHeight
             : $page->NormalSize;
         return $image->ScaleHeight($height);
-
     }
 
     public function setUI(ImageGalleryUI $ui)
@@ -150,7 +148,9 @@ class ImageGalleryItem extends DataObject
      */
     public function GalleryItem()
     {
-        $this->UI = Object::create($this->ImageGalleryPage()->GalleryUI());
+        if (($ui = $this->ImageGalleryPage()->GalleryUI()) && ClassInfo::exists($ui)) {
+            $this->UI = new $ui();
+        }
 
         if ($this->UI) {
             return $this->renderWith([$this->UI->item_template]);

@@ -28,7 +28,6 @@ use SilverStripe\View\Requirements;
 use TractorCow\ImageGallery\Model\ImageGalleryAlbum;
 use TractorCow\ImageGallery\Model\ImageGalleryItem;
 
-
 /**
  * Class \TractorCow\ImageGallery\Pages\ImageGalleryPage
  *
@@ -162,8 +161,11 @@ class ImageGalleryPage extends Page
             $uiLabel = $ui::$label;
             $demoURL = $ui::$link_to_demo;
             $demoLink = !empty($demoURL)
-                ? sprintf('<a href="%s" target="_blank">%s</a>', $demoURL,
-                    _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.VIEWDEMO', 'view demo'))
+                ? sprintf(
+                    '<a href="%s" target="_blank">%s</a>',
+                    $demoURL,
+                    _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.VIEWDEMO', 'view demo')
+                )
                 : "";
             $popupMap[$ui] = "$uiLabel $demoLink";
         }
@@ -175,30 +177,53 @@ class ImageGalleryPage extends Page
         $configTab->setTitle(_t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.CONFIGURATION', 'Configuration'));
         $fields->addFieldsToTab("Root.Configuration", [
             $coverImages = new FieldGroup(
-                new NumericField('CoverImageWidth',
-                    _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.WIDTH', 'Width')),
-                new NumericField('CoverImageHeight',
-                    _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.HEIGHT', 'Height'))
+                new NumericField(
+                    'CoverImageWidth',
+                    _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.WIDTH', 'Width')
+                ),
+                new NumericField(
+                    'CoverImageHeight',
+                    _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.HEIGHT', 'Height')
+                )
             ),
-            new NumericField('ThumbnailSize',
-                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.THUMBNAILHEIGHT', 'Thumbnail height (pixels)')),
-            new CheckboxField('Square',
-                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.CROPTOSQUARE', 'Crop thumbnails to square')),
-            new NumericField('MediumSize',
-                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MEDIUMSIZE', 'Medium size (pixels)')),
-            new NumericField('NormalSize',
-                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALSIZE', 'Normal width (pixels)')),
-            new NumericField('NormalHeight',
-                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALHEIGHT', 'Normal height (pixels)')),
-            new NumericField('MediaPerPage',
-                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.IMAGESPERPAGE', 'Number of images per page')),
-            new OptionsetField('GalleryUI',
-                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.POPUPSTYLE', 'Popup style'), $popupMap),
-            new NumericField('UploadLimit',
-                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MAXFILES', 'Max files allowed in upload queue'))
+            new NumericField(
+                'ThumbnailSize',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.THUMBNAILHEIGHT', 'Thumbnail height (pixels)')
+            ),
+            new CheckboxField(
+                'Square',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.CROPTOSQUARE', 'Crop thumbnails to square')
+            ),
+            new NumericField(
+                'MediumSize',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MEDIUMSIZE', 'Medium size (pixels)')
+            ),
+            new NumericField(
+                'NormalSize',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALSIZE', 'Normal width (pixels)')
+            ),
+            new NumericField(
+                'NormalHeight',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.NORMALHEIGHT', 'Normal height (pixels)')
+            ),
+            new NumericField(
+                'MediaPerPage',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.IMAGESPERPAGE', 'Number of images per page')
+            ),
+            new OptionsetField(
+                'GalleryUI',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.POPUPSTYLE', 'Popup style'),
+                $popupMap
+            ),
+            new NumericField(
+                'UploadLimit',
+                _t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.MAXFILES', 'Max files allowed in upload queue')
+            )
         ]);
-        $coverImages->setTitle(_t('TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMCOVERIMAGES',
-            'Album cover images'));
+        $coverImages->setTitle(_t(
+            'TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMCOVERIMAGES',
+            'Album cover images'
+        ));
 
         // Build albums tab
         $fields->addFieldToTab('Root', $albumTab = new Tab('Albums'));
@@ -221,8 +246,10 @@ class ImageGalleryPage extends Page
             $fields->addFieldToTab(
                 "Root.Albums",
                 new HeaderField(
-                    _t("TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMSNOTSAVED",
-                        "You may add albums to your gallery once you have saved the page for the first time."),
+                    _t(
+                        "TractorCow\\ImageGallery\\Pages\\ImageGalleryPage.ALBUMSNOTSAVED",
+                        "You may add albums to your gallery once you have saved the page for the first time."
+                    ),
                     $headingLevel = "3"
                 )
             );
@@ -287,7 +314,7 @@ class ImageGalleryPage extends Page
     {
         if (($ui = $this->GalleryUI()) && ClassInfo::exists($ui)) {
             Requirements::javascript("image_gallery/javascript/imagegallery_init.js");
-            $this->UI = Object::create($ui);
+            $this->UI = new $ui();
             $this->UI->setImageGalleryPage($this);
             $this->UI->initialize();
         }
