@@ -103,6 +103,16 @@ class ImageGalleryItem extends DataObject
         return $fields;
     }
 
+    protected function onBeforeWrite()
+    {
+        if ($this->SortOrder == 0) {
+            $this->SortOrder = self::get()->count() + 1;
+        }
+
+        parent::onBeforeWrite();
+    }
+
+
     public function Thumbnail()
     {
         $page = $this->ImageGalleryPage();
