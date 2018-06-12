@@ -15,7 +15,8 @@
 		}
 	],
 	"require": {
-		"silverstripe/framework": "^4.0"
+		"silverstripe/framework": "^4.0",
+        "undefinedoffset/sortablegridfield": "^2.0.2"
 	},
 	"support": {
 		"issues": "https://github.com/tractorcow/ImageGallery/issues"
