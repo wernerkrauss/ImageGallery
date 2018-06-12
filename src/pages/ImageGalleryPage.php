@@ -3,13 +3,10 @@
 namespace TractorCow\ImageGallery\Pages;
 
 use Colymba\BulkManager\BulkManager;
-use GridFieldSortableRows;
 use Page;
-use PageController;
 use SilverStripe\Assets\Folder;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\ClassInfo;
-use SilverStripe\Core\Convert;
 use SilverStripe\Core\Object;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\FieldGroup;
@@ -19,7 +16,6 @@ use SilverStripe\Forms\HeaderField;
 use SilverStripe\Forms\NumericField;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\Tab;
-use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\PaginatedList;
 use SilverStripe\ORM\SS_List;
@@ -27,6 +23,7 @@ use SilverStripe\Versioned\Versioned;
 use SilverStripe\View\Requirements;
 use TractorCow\ImageGallery\Model\ImageGalleryAlbum;
 use TractorCow\ImageGallery\Model\ImageGalleryItem;
+use UndefinedOffset\SortableGridField\Forms\GridFieldSortableRows;
 
 /**
  * Class \TractorCow\ImageGallery\Pages\ImageGalleryPage
@@ -48,12 +45,7 @@ use TractorCow\ImageGallery\Model\ImageGalleryItem;
 class ImageGalleryPage extends Page
 {
     private static $table_name = 'ImageGalleryPage';
-
-
-    protected $currentAlbum = null;
-
     private static $icon = 'image_gallery/images/image-gallery-icon.png';
-
     private static $db = [
         'GalleryUI' => "Varchar(50)",
         'CoverImageWidth' => 'Int',
@@ -66,11 +58,9 @@ class ImageGalleryPage extends Page
         'MediaPerPage' => 'Int',
         'UploadLimit' => 'Int'
     ];
-
     private static $has_one = [
         'RootFolder' => Folder::class
     ];
-
     private static $defaults = [
         'CoverImageWidth' => '128',
         'CoverImageHeight' => '128',
@@ -83,25 +73,22 @@ class ImageGalleryPage extends Page
         'UploadLimit' => '20',
         'GalleryUI' => 'Lightbox'
     ];
-
     private static $has_many = [
         'Albums' => ImageGalleryAlbum::class,
         'GalleryItems' => ImageGalleryItem::class
     ];
-
     /**
      * @config
      * @var string
      */
     private static $item_class = ImageGalleryItem::class;
-
     /**
      * @config
      * @var string
      */
     private static $album_class = ImageGalleryAlbum::class;
-
     public $UI;
+    protected $currentAlbum = null;
 
     public function getItemClass()
     {
@@ -119,6 +106,18 @@ class ImageGalleryPage extends Page
         $this->checkFolder();
     }
 
+    public function checkFolder()
+    {
+        // Ensure root folder exists, but avoid saving folders like "new-image-gallery-page"
+        if ($this->exists()
+            && !(($folder = $this->RootFolder()) && $folder->exists())
+            && $this->URLSegment
+        ) {
+            $folder = Folder::find_or_make("image-gallery/{$this->URLSegment}");
+            $this->RootFolderID = $folder->ID;
+        }
+    }
+
     public function onBeforeDelete()
     {
         // check if Page still exists in live mode
@@ -134,18 +133,6 @@ class ImageGalleryPage extends Page
         }
 
         parent::onBeforeDelete();
-    }
-
-    public function checkFolder()
-    {
-        // Ensure root folder exists, but avoid saving folders like "new-image-gallery-page"
-        if ($this->exists()
-            && !(($folder = $this->RootFolder()) && $folder->exists())
-            && $this->URLSegment
-        ) {
-            $folder = Folder::find_or_make("image-gallery/{$this->URLSegment}");
-            $this->RootFolderID = $folder->ID;
-        }
     }
 
     public function getCMSFields()
@@ -237,7 +224,7 @@ class ImageGalleryPage extends Page
             }
             // Enable album sorting if necessary module is installed
             // @see composer.json/suggests
-            if (class_exists('GridFieldSortableRows')) {
+            if (class_exists(GridFieldSortableRows::class)) {
                 $albumConfig->addComponent(new GridFieldSortableRows('SortOrder'));
             }
             $albumField = new GridField('Albums', 'Albums', $this->Albums(), $albumConfig);
@@ -258,6 +245,11 @@ class ImageGalleryPage extends Page
         return $fields;
     }
 
+    public function AlbumTitle()
+    {
+        return $this->CurrentAlbum()->AlbumName;
+    }
+
     public function CurrentAlbum()
     {
         if ($this->currentAlbum) {
@@ -271,11 +263,6 @@ class ImageGalleryPage extends Page
             ])->first();
         }
         return false;
-    }
-
-    public function AlbumTitle()
-    {
-        return $this->CurrentAlbum()->AlbumName;
     }
 
     public function AlbumDescription()
@@ -292,41 +279,9 @@ class ImageGalleryPage extends Page
         return false;
     }
 
-    private static function get_default_ui()
+    public function AllGalleryItems()
     {
-        $classes = ClassInfo::subclassesFor("ImageGalleryUI");
-        foreach ($classes as $class) {
-            if ($class != "ImageGalleryUI") {
-                return $class;
-            }
-        }
-        return false;
-    }
-
-    public function GalleryUI()
-    {
-        return $this->GalleryUI
-            ? $this->GalleryUI
-            : self::get_default_ui();
-    }
-
-    public function includeUI()
-    {
-        if (($ui = $this->GalleryUI()) && ClassInfo::exists($ui)) {
-            Requirements::javascript("image_gallery/javascript/imagegallery_init.js");
-            $this->UI = new $ui();
-            $this->UI->setImageGalleryPage($this);
-            $this->UI->initialize();
-        }
-    }
-
-    protected function Items($limit = null)
-    {
-        $items = DataObject::get($this->ItemClass)->sort('"SortOrder" ASC')->limit($limit);
-        if ($album = $this->CurrentAlbum()) {
-            $items = $items->filter('AlbumID', $album->ID);
-        }
-        return $items;
+        return $this->GalleryItems("0,999");
     }
 
     public function GalleryItems($limit = null, SS_List $items = null)
@@ -348,6 +303,54 @@ class ImageGalleryPage extends Page
         return $items;
     }
 
+    protected function Items($limit = null)
+    {
+        $items = DataObject::get($this->ItemClass)->sort('"SortOrder" ASC')->limit($limit);
+        if ($album = $this->CurrentAlbum()) {
+            $items = $items->filter('AlbumID', $album->ID);
+        }
+        return $items;
+    }
+
+    public function includeUI()
+    {
+        if (($ui = $this->GalleryUI()) && ClassInfo::exists($ui)) {
+            Requirements::javascript("image_gallery/javascript/imagegallery_init.js");
+            $this->UI = new $ui();
+            $this->UI->setImageGalleryPage($this);
+            $this->UI->initialize();
+        }
+    }
+
+    public function GalleryUI()
+    {
+        return $this->GalleryUI
+            ? $this->GalleryUI
+            : self::get_default_ui();
+    }
+
+    private static function get_default_ui()
+    {
+        $classes = ClassInfo::subclassesFor("ImageGalleryUI");
+        foreach ($classes as $class) {
+            if ($class != "ImageGalleryUI") {
+                return $class;
+            }
+        }
+        return false;
+    }
+
+    public function GalleryLayout()
+    {
+        $this->includeUI();
+
+        return $this->customise([
+            'GalleryItems' => $this->GalleryItems(),
+            'PreviousGalleryItems' => $this->PreviousGalleryItems(),
+            'NextGalleryItems' => $this->NextGalleryItems()
+        ])->renderWith([$this->UI->layout_template]);
+    }
+
     public function PreviousGalleryItems()
     {
         if (isset($_REQUEST['start']) && is_numeric($_REQUEST['start']) && $this->MediaPerPage) {
@@ -362,21 +365,5 @@ class ImageGalleryPage extends Page
             return $this->GalleryItems($_REQUEST['start'] + $this->MediaPerPage . ",999");
         }
         return $this->GalleryItems($this->MediaPerPage . ",999");
-    }
-
-    public function AllGalleryItems()
-    {
-        return $this->GalleryItems("0,999");
-    }
-
-    public function GalleryLayout()
-    {
-        $this->includeUI();
-
-        return $this->customise([
-            'GalleryItems' => $this->GalleryItems(),
-            'PreviousGalleryItems' => $this->PreviousGalleryItems(),
-            'NextGalleryItems' => $this->NextGalleryItems()
-        ])->renderWith([$this->UI->layout_template]);
     }
 }

@@ -14,7 +14,9 @@ use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextareaField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
+use SilverStripe\Versioned\Versioned;
 use TractorCow\ImageGallery\Pages\ImageGalleryPage;
+use UndefinedOffset\SortableGridField\Forms\GridFieldSortableRows;
 
 /**
  * Class \TractorCow\ImageGallery\Model\ImageGalleryItem
@@ -30,6 +32,11 @@ use TractorCow\ImageGallery\Pages\ImageGalleryPage;
  */
 class ImageGalleryItem extends DataObject
 {
+    private static $extensions = [
+        Versioned::class . '.versioned',
+    ];
+
+
     private static $table_name = 'ImageGalleryItem';
 
     /**
@@ -67,7 +74,11 @@ class ImageGalleryItem extends DataObject
         'Image' => Image::class
     ];
 
-    private static $default_sort = '"SortOrder" ASC';
+    private static $owns = [
+        'Image'
+    ];
+
+    private static $default_sort = 'SortOrder';
 
     private static $summary_fields = [
         'Image.CMSThumbnail' => 'Image',
@@ -76,18 +87,18 @@ class ImageGalleryItem extends DataObject
 
     public function getCMSFields()
     {
-        $fields = new FieldList(new TabSet('Root'));
+        $fields = new FieldList();
 
         // Details
-        $fields->addFieldToTab(
-            'Root.Main',
-            new TextareaField('Caption', _t('TractorCow\\ImageGallery\\Model\\ImageGalleryItem.CAPTION', 'Caption'))
+        $fields->push(
+            TextareaField::create('Caption', _t('TractorCow\\ImageGallery\\Model\\ImageGalleryItem.CAPTION', 'Caption'))
         );
 
         // Create image
-        $imageField = new UploadField(Image::class);
-        $imageField->getValidator()->setAllowedExtensions(File::config()->app_categories['image']);
-        $fields->addFieldToTab('Root.Main', $imageField);
+        $imageField = UploadField::create('Image');
+        $imageField->setAllowedFileCategories('image');
+//        $imageField->getValidator()->setAllowedExtensions(File::config()->app_categories['image']);
+        $fields->push($imageField);
 
         return $fields;
     }

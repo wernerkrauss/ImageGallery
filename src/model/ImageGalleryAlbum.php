@@ -2,10 +2,8 @@
 
 namespace TractorCow\ImageGallery\Model;
 
-
 use Colymba\BulkManager\BulkManager;
 use Colymba\BulkUpload\BulkUploader;
-use GridFieldSortableRows;
 use SilverStripe\AssetAdmin\Forms\UploadField;
 use SilverStripe\Assets\File;
 use SilverStripe\Assets\Folder;
@@ -18,9 +16,10 @@ use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextareaField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\Versioned\Versioned;
 use SilverStripe\View\Parsers\URLSegmentFilter;
 use TractorCow\ImageGallery\Pages\ImageGalleryPage;
-
+use UndefinedOffset\SortableGridField\Forms\GridFieldSortableRows;
 
 /**
  * Class \TractorCow\ImageGallery\Model\ImageGalleryAlbum
@@ -39,6 +38,9 @@ use TractorCow\ImageGallery\Pages\ImageGalleryPage;
  */
 class ImageGalleryAlbum extends DataObject
 {
+    private static $extensions = [
+        Versioned::class . '.versioned'
+    ];
 
     private static $table_name = 'ImageGalleryAlbum';
 
@@ -59,13 +61,18 @@ class ImageGalleryAlbum extends DataObject
         'GalleryItems' => ImageGalleryItem::class
     ];
 
+    private static $owns = [
+        'CoverImage',
+        'Folder'
+    ];
+
     private static $summary_fields = [
         'CoverImage.CMSThumbnail' => 'Cover Image',
         'AlbumName' => 'Album Name',
         'Description' => 'Description'
     ];
 
-    private static $default_sort = '"SortOrder" ASC';
+    private static $default_sort = 'SortOrder ASC';
 
     public function getTitle()
     {
@@ -80,14 +87,22 @@ class ImageGalleryAlbum extends DataObject
         $fields = new FieldList(new TabSet('Root'));
 
         // Details
-        $thumbnailField = new UploadField('CoverImage',
-            _t('TractorCow\\ImageGallery\\Model\\ImageGalleryAlbum.COVERIMAGE', 'Cover Image'));
+        $thumbnailField = new UploadField(
+            'CoverImage',
+            _t('TractorCow\\ImageGallery\\Model\\ImageGalleryAlbum.COVERIMAGE', 'Cover Image')
+        );
         $thumbnailField->getValidator()->setAllowedExtensions(File::config()->app_categories['image']);
         $fields->addFieldsToTab('Root.Main', [
-            new TextField('AlbumName',
-                _t('TractorCow\\ImageGallery\\Model\\ImageGalleryAlbum.ALBUMTITLE', 'Album Title'), null, 255),
-            new TextareaField('Description',
-                _t('TractorCow\\ImageGallery\\Model\\ImageGalleryAlbum.DESCRIPTION', 'Description')),
+            new TextField(
+                'AlbumName',
+                _t('TractorCow\\ImageGallery\\Model\\ImageGalleryAlbum.ALBUMTITLE', 'Album Title'),
+                null,
+                255
+            ),
+            new TextareaField(
+                'Description',
+                _t('TractorCow\\ImageGallery\\Model\\ImageGalleryAlbum.DESCRIPTION', 'Description')
+            ),
             $thumbnailField
         ]);
 
@@ -100,17 +115,18 @@ class ImageGalleryAlbum extends DataObject
             $galleryConfig->addComponent(new BulkManager());
         }
         if (class_exists(BulkUploader::class)) {
-            $galleryConfig->addComponents($imageConfig = new BulkUploader(Image::class));
+            $galleryConfig->addComponents($bulkUploader = new BulkUploader(Image::class));
             if ($uploadFolder = $this->Folder()) {
                 // Set upload folder - Clean up 'assets' from target path
-                $path = preg_replace('/(^' . ASSETS_DIR . '\/?)|(\/$)/i', '', $uploadFolder->RelativePath);
-                $imageConfig->setUfSetup('setFolderName', $path);
+                $path = preg_replace('/(^' . ASSETS_DIR . '\/?)|(\/$)/i', '', $uploadFolder->getFilename());
+                $bulkUploader->setUfSetup('setFolderName', $path);
+                $bulkUploader->setConfig('fileRelationName', 'Image');
             }
         }
 
         // Enable image sorting if necessary module is installed
         // @see composer.json/suggests
-        if (class_exists('GridFieldSortableRows')) {
+        if (class_exists(GridFieldSortableRows::class)) {
             $galleryConfig->addComponent(new GridFieldSortableRows('SortOrder'));
         }
 
