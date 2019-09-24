@@ -96,6 +96,7 @@ class ImageGalleryItem extends DataObject
         $imageField->setAllowedFileCategories('image');
 //        $imageField->getValidator()->setAllowedExtensions(File::config()->app_categories['image']);
         $fields->push($imageField);
+        $this->extend('updateCMSFields', $fields);
 
         return $fields;
     }
