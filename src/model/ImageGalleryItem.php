@@ -4,19 +4,16 @@ namespace TractorCow\ImageGallery\Model;
 
 use ImageGalleryUI;
 use SilverStripe\AssetAdmin\Forms\UploadField;
-use SilverStripe\Assets\File;
 use SilverStripe\Assets\Image;
 use SilverStripe\Assets\Image_Backend;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Object;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\Forms\TabSet;
 use SilverStripe\Forms\TextareaField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Permission;
 use SilverStripe\Versioned\Versioned;
 use TractorCow\ImageGallery\Pages\ImageGalleryPage;
-use UndefinedOffset\SortableGridField\Forms\GridFieldSortableRows;
 
 /**
  * Class \TractorCow\ImageGallery\Model\ImageGalleryItem
@@ -107,6 +104,10 @@ class ImageGalleryItem extends DataObject
     {
         if ($this->SortOrder == 0) {
             $this->SortOrder = self::get()->count() + 1;
+        }
+
+        if (!$this->ImageGalleryPageID && $this->AlbumID) {
+            $this->ImageGalleryPageID = $this->Album()->ImageGalleryPageID;
         }
 
         parent::onBeforeWrite();
