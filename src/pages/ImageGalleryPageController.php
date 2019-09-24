@@ -2,7 +2,6 @@
 
 namespace TractorCow\ImageGallery\Pages;
 
-
 use PageController;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataObject;
@@ -17,7 +16,6 @@ use SilverStripe\View\Requirements;
  */
 class ImageGalleryPageController extends PageController
 {
-
     private static $allowed_actions = ['album'];
 
     public function init()
@@ -40,9 +38,9 @@ class ImageGalleryPageController extends PageController
         return str_replace("_Controller", "", $this->class);
     }
 
-    private function getModel()
+    public function NextAlbum()
     {
-        return DataObject::get_by_id($this->getModelClass(), $this->ID);
+        return $this->adjacentAlbum("next");
     }
 
     protected function adjacentAlbum($dir)
@@ -60,16 +58,9 @@ class ImageGalleryPageController extends PageController
         // Get next/previous album by sort (or ID if sort values haven't been set)
         $filter =
             "\"ImageGalleryAlbum\".\"ImageGalleryPageID\" = '$parentID' AND
-			\"ImageGalleryAlbum\".\"SortOrder\" {$direction} '$adjacentSort' OR (
-				\"ImageGalleryAlbum\".\"SortOrder\" = '$adjacentSort'
-				AND \"ImageGalleryAlbum\".\"ID\" {$direction} '$adjacentID'
-			)";
-        return DataObject::get_one($this->AlbumClass, $filter, false, "\"SortOrder\" $sort, \"ID\" $sort");
-    }
+			\"ImageGalleryAlbum\".\"SortOrder\" {$direction} '$adjacentSort'";
 
-    public function NextAlbum()
-    {
-        return $this->adjacentAlbum("next");
+        return DataObject::get_one($this->AlbumClass, $filter, false, "\"SortOrder\" $sort, \"ID\" $sort");
     }
 
     public function PrevAlbum()
@@ -84,5 +75,9 @@ class ImageGalleryPageController extends PageController
         }
         return [];
     }
-}
 
+    private function getModel()
+    {
+        return DataObject::get_by_id($this->getModelClass(), $this->ID);
+    }
+}
